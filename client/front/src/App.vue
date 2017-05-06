@@ -1,23 +1,20 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
+  <div id="app" class="full-screen">
     <router-view></router-view>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'app'
-}
-</script>
-
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+html, body, .full-screen {
+  width: 100%;
+  height: 100%;
+}
+.weui-navbar__item {
+  padding: 13px 0 !important;
+  background-color: #304758 !important;
+  color: #FFFFFF !important;
+}
+.weui-tab__panel {
+  padding-bottom: 60px !important;
 }
 </style>

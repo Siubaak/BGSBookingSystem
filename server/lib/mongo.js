@@ -6,22 +6,43 @@ var Mongolass = require('mongolass'),
       account: { type: 'string' },
       password: { type: 'string' }
     }),
-    Classifications = mongolass.model('Classification', {
-      name: { type: 'string' }
+    Users = mongolass.model('User', {
+      account: { type: 'string' },
+      password: { type: 'string' },
+      isAuth: { type: 'boolean' },
+      info: {
+        department: { type: 'string' },
+        reName: { type: 'string' },  //部长姓名
+        rePhone: { type: 'number' }  //部长电话
+      }
     }),
-    Articles = mongolass.model('Article', {
-      title: { type: 'string' },
-      intro: { type: 'string' },
-      body: { type: 'string' },
-      classificationId: { type: Mongolass.Types.ObjectId }
+    Materials = mongolass.model('Material', {
+      name: { type: 'string' },
+      quantity: { type: 'number' },
+      totalBook: { type: 'number' }  //-1为消耗品，大于等于0为非消耗品
     }),
-    Comments = mongolass.model('Comment', {
-      user: { type: 'string' },
-      msg: { type: 'string' },
-      articleId: { type: Mongolass.Types.ObjectId }
+    MaterialBooks = mongolass.model('MaterialBook', {
+      userId: { type: Mongolass.Types.ObjectId },
+      name: { type: 'string' },
+      phone: { type: 'string' },
+      materialBook: [{
+        materialId: { type: Mongolass.Types.ObjectId },
+        book: { type: 'number' }
+      }],
+      takeTime: { type: 'date' },
+      returnTime: { type: 'date' },
+      condition: { type: 'string' },  //book为预约，lend为借出，return为归还，void为作废
+      remark: { type: 'string' }
+    }),
+    MeetingBooks = mongolass.model('MeetingBook', {
+      userId: { type: Mongolass.Types.ObjectId },
+      name: { type: 'string' },
+      phone: { type: 'string' },
+      useTime: { type: 'date' },
+      isPNeed: { type: 'boolean' }  //是否需要投影仪
     })
 // 连接数据库
-mongolass.connect('mongodb://localhost:27017/test')
+mongolass.connect('mongodb://localhost:27017/bookingsystem')
 // 注册插件，转化objectId为timestamp，再转化为YYYY-MM-DD HH:mm:ss格式时间并储存在date中
 var transferTime = (result) => {
   if (result) {
@@ -42,7 +63,8 @@ mongolass.plugin('addDate', {
 
 module.exports = {
   Admins,
-  Classifications,
-  Articles,
-  Comments
+  Users,
+  Materials,
+  MaterialBooks,
+  MeetingBooks
 }

@@ -1,15 +1,42 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
+import main from '@/components/main'
+import notification from '@/components/notification'
+import material from '@/components/material'
+import meeting from '@/components/meeting'
+import account from '@/components/account'
 
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
-      name: 'Hello',
-      component: Hello
+      name: 'main',
+      component: main,
+      children: [
+        {
+          path: '',
+          name: 'notification',
+          component: notification
+        },
+        {
+          path: '/material',
+          name: 'material',
+          component: material
+        },
+        {
+          path: '/meeting',
+          name: 'meeting',
+          component: meeting
+        },
+        {
+          path: '/account',
+          name: 'account',
+          component: account
+        }
+      ]
     }
   ]
 })
