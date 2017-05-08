@@ -7,7 +7,9 @@
         </div>
       </div>
       <div class="weui-tab__panel">
-        <router-view></router-view>
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
       </div>
       <div class="weui-tabbar">
         <router-link to='/'
@@ -82,3 +84,14 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.weui-navbar__item {
+  padding: 13px 0 !important;
+  background-color: #304758 !important;
+  color: #FFFFFF !important;
+}
+.weui-tab__panel {
+  padding-bottom: 60px !important;
+}
+</style>

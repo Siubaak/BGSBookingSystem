@@ -5,6 +5,7 @@ import notification from '@/components/notification'
 import material from '@/components/material'
 import meeting from '@/components/meeting'
 import account from '@/components/account'
+import log from '@/components/log'
 
 Vue.use(Router)
 
@@ -37,6 +38,11 @@ export default new Router({
           component: account
         }
       ]
+    },
+    {
+      path: '/log',
+      name: 'log',
+      component: log
     }
   ]
 })
