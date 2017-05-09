@@ -1,6 +1,6 @@
-var jwt = require('jsonwebtoken')
+let jwt = require('jsonwebtoken')
 module.exports = (name) => {
-  var expiry = new Date()
+  let expiry = new Date()
   // 有效期设置为七天
   expiry.setDate(expiry.getDate() + 7)
   return jwt.sign(

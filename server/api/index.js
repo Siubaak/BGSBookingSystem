@@ -1,5 +1,4 @@
 let { Admins, Users, Materials, MaterialBooks, MeetingBooks } = require('../lib/mongo')
-let async = require('async')
 
 module.exports = {
 // 用户相关API函数
@@ -33,20 +32,27 @@ module.exports = {
     return Materials.create(material).exec()
   },
   updateMaterial(material) {
-    if (material.quantity === material.left) {
-      return Materials.update({ _id: material._id }, { $set: material }).exec()
-    } else {
-      Promise.reject('The material remains book/lend condition(s).')
-    }
+    Materials.update({ _id: material._id }, { $set: material }).exec()
   },
-  removeMaterial(materialId) {
-    return Promise.all([
-      Materials.remove({ _id: materialId }).exec(),
-      MaterialBooks.update({ "materialBook.materialId": materialId }, {
-        $pull:
-        { book: { materialId: materialId } }
-      }, { multi: true }).exec()
-    ])
+  removeMaterial(material) {
+    MaterialBooks.findOne({ materialId: material_id, $or:{}})
+      .then((materialBook) => {
+        return Promise.reject(`${materialBook.activity} has booked/borrowed.`)
+      })
+      .catch((err) => {
+
+      })
+    if (material.quantity === material.left) {
+      return Promise.all([
+        Materials.remove({ _id: material._id }).exec(),
+        MaterialBooks.update({ 'materialBook.materialId': material_id }, {
+          $pull:
+          { book: { materialId: material._id } }
+        }).exec()
+      ])
+    } else {
+      return Promise.reject('The material remains book/lend.')
+    }
   },
   getMaterialList(FindLeft = false) {
     if (FindLeft) {
@@ -57,23 +63,61 @@ module.exports = {
   },
 // 物资申请相关API函数
   createMaterialBook(materialBook) {
-    return Promise.all([
-      materialBook.
-      MaterialBooks.create(materialBook).exec()
-    ])
+    let materialBookProccessingList = []
+    materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: 1 } }).exec())
+    materialBookProccessingList.push(MaterialBooks.create(materialBook).exec())
+    for (let bookItem in materialBook.book) {
+      materialBookProccessingList.push(Materials.update({ _id: bookItem.materialId }, { $inc: { left: -bookItem.quantity } }).exec())
+    }
+    return Promise.all(materialBookProccessingList)
   },
-  removeMaterialBook(materialBookId) {
-    return MaterialBooks.remove({ _id: materialBookId }).exec()
+  changeMaterialBookCondition(materialBook, condition = 'return') {
+    if (materialBook.condition !== 'return' && materialBook.condition !== 'fail' && condition !== 'book' && condition !== 'lend') {
+      let materialBookProccessingList = []
+      materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: -1 } }).exec())
+      materialBookProccessingList.push(MaterialBooks.update({ _id: materialBook._id }, { $set: { conditon: conditon } }).exec())
+      for (let bookItem in materialBook.book) {
+        materialBookProccessingList.push(Materials.update({ _id: bookItem.materialid }, { $inc: { left: bookItem.quantity } }).exec())
+      }
+      return Promise.all(materialBookProccessingList)
+    } else {
+      return Promise.reject('Changing to the book/lend condition is not allowed or the book has returned/failed')
+    }
   },
-  getMaterialBookList() {
-    return MaterialBooks.find().exec()
+  removeMaterialBook(materialBook) {
+    if (materialBook.condition !== 'return' && materialBook.condition !== 'fail') {
+      let materialBookProccessingList = []
+      materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: -1 } }).exec())
+      materialBookProccessingList.push(MaterialBooks.remove({ _id: materialBook._id }).exec())
+      for (let bookItem in materialBook.book) {
+        materialBookProccessingList.push(Materials.update({ _id: bookItem.materialId }, { $inc: { left: bookItem.quantity } }).exec())
+      }
+      return Promise.all(materialBookProccessingList)
+    } else {
+      return MaterialBooks.remove({ _id: materialBook._id }).exec()
+    }
+  },
+  getMaterialBookList(userId = null) {
+    if (userId) {
+      return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
+    } else {
+      return MaterialBooks.find().exec()
+    }
   },
 // 会议室预约相关API函数
   createMeetingBook(meetingBook) {
-    return MeetingBooks.create(meetingBook).exec()
+    return Promise.all([
+      Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: 1 } }).exec(),
+      MeetingBooks.create(meetingBook).exec(),
+      Meetings.update({ date: meetingBook.date }, { $set: { 'condition.time': meetingBook.time } }).exec()
+    ])
   },
-  removeMeetingBook(meetingBookId) {
-    return MeetingBooks.remove({ _id: meetingBookId }).exec()
+  removeMeetingBook(meetingBook) {
+    return Promise.all([
+      Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
+      MeetingBooks.remove({ _id: meetingBook._id }).exec(),
+      Meetings.update({ date: meetingBook.date }, { $set: { 'condition.time': meetingBook.time } }).exec()
+    ])
   },
   getMeetingBookList(userId = null) {
     if (userId) {
