@@ -6,6 +6,9 @@ module.exports = {
   getAdmin(account) {
     return Admins.findOne({ account: account }).exec()
   },
+  updateAdmin(admin) {
+    return Admins.update({ _id: admin._id }, { $set: admin }).exec()
+  },
   createUser(user) {
     return Users.create(user).exec()
   },
@@ -30,28 +33,34 @@ module.exports = {
     return Materials.create(material).exec()
   },
   updateMaterial(material) {
-    return Materials.update({ _id: material._id }, { $set: material }).exec()
+    if (material.quantity === material.left) {
+      return Materials.update({ _id: material._id }, { $set: material }).exec()
+    } else {
+      Promise.reject('The material remains book/lend condition(s).')
+    }
   },
   removeMaterial(materialId) {
     return Promise.all([
       Materials.remove({ _id: materialId }).exec(),
-      MaterialBooks.update({ "materialBook.materialId": materialId }, { $pull: { materialBook: { materialId: materialId } } }).exec()
+      MaterialBooks.update({ "materialBook.materialId": materialId }, {
+        $pull:
+        { book: { materialId: materialId } }
+      }, { multi: true }).exec()
     ])
   },
   getMaterialList(FindLeft = false) {
     if (FindLeft) {
-      MaterialBooks.find()
-      return Materials.find({ }).exec()
+      return Materials.find({ left: { $gt: 0 } }).exec()
     } else {
       return Materials.find().exec()
     }
   },
 // 物资申请相关API函数
   createMaterialBook(materialBook) {
-    return MaterialBooks.create(materialBook).exec()
-  },
-  updateMaterialBook(materialBook) {
-    return MaterialBooks.update({ _id: materialBook._id }, { $set: materialBook }).exec()
+    return Promise.all([
+      materialBook.
+      MaterialBooks.create(materialBook).exec()
+    ])
   },
   removeMaterialBook(materialBookId) {
     return MaterialBooks.remove({ _id: materialBookId }).exec()
@@ -59,17 +68,18 @@ module.exports = {
   getMaterialBookList() {
     return MaterialBooks.find().exec()
   },
-// 物资申请相关API函数
+// 会议室预约相关API函数
   createMeetingBook(meetingBook) {
     return MeetingBooks.create(meetingBook).exec()
-  },
-  updateMeetingBook(meetingBook) {
-    return MeetingBooks.update({ _id: meetingBook._id }, { $set: meetingBook }).exec()
   },
   removeMeetingBook(meetingBookId) {
     return MeetingBooks.remove({ _id: meetingBookId }).exec()
   },
-  getMeetingBookList() {
-    return MeetingBooks.find().exec()
+  getMeetingBookList(userId = null) {
+    if (userId) {
+      return MeetingBooks.find({ userId: userId }).exec()
+    } else {
+      return MeetingBooks.find().exec()
+    }
   }
 }
