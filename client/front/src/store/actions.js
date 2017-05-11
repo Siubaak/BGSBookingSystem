@@ -1,27 +1,22 @@
 import api from '../api'
 import router from '../router'
+import weui from 'weui.js'
 export default {
-  adminLogin ({ commit }, objectAccountPassword) {
-    api.adminLogin(objectAccountPassword)
+  login ({ commit }, objectDepartmentPassword) {
+    api.login(objectDepartmentPassword)
       .then((res) => {
         if (res.data.token) {
-          commit('ADMIN_LOGIN', res.data.token)
-          router.replace({ path: '/admin' })
-          console.log('-- Successful Login')
+          weui.toast('登录成功', 2000)
+          commit('USER_LOGIN', res.data.token)
+          router.replace({ path: '/' })
         } else {
-          alert(res.data.msg || res.data.err)
-          console.log('-- Error Login')
+          weui.toast(`登录失败（${res.data.msg || res.data.err}）`, 2000)
         }
       })
-      .catch((err) => {
-        console.log(err)
-        console.log('-- Error Login')
-      })
   },
-  adminLogout ({ commit }) {
-    console.log('Logouting...')
-    commit('ADMIN_LOGOUT')
-    router.push({ path: '/login' })
-    console.log('-- Successful Logout')
+  logout ({ commit }) {
+    commit('USER_LOGOUT')
+    router.push({ path: '/' })
+    weui.toast('注销成功', 2000)
   }
 }

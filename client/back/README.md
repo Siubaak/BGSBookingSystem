@@ -1,6 +1,6 @@
-# back
+# front
 
-> Back page for BGS Booking System
+> Front Page for KunBlog
 
 ## Build Setup
 

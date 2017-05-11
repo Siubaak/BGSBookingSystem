@@ -1,11 +1,11 @@
-const USER_LOGIN = 'USER_LOGIN'
-const USER_LOGOUT = 'USER_LOGOUT'
+const ADMIN_LOGIN = 'ADMIN_LOGIN'
+const ADMIN_LOGOUT = 'ADMIN_LOGOUT'
 export default {
-  [USER_LOGIN] (state, token) {
+  [ADMIN_LOGIN] (state, token) {
     localStorage.setItem('jwt', token)
     state.token = token
   },
-  [USER_LOGOUT] (state) {
+  [ADMIN_LOGOUT] (state) {
     localStorage.removeItem('jwt')
     state.token = null
   }

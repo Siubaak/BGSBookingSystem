@@ -70,7 +70,7 @@ export default {
   },
   data () {
     return {
-      isLogin: store.state.token === null,
+      isLogin: store.state.token !== null,
       name: '',
       phone: '',
       date: '请选择日期',

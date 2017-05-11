@@ -93,7 +93,7 @@ export default {
   },
   data () {
     return {
-      isLogin: store.state.token === null,
+      isLogin: store.state.token !== null,
       name: '',
       phone: '',
       activity: '',

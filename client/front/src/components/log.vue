@@ -11,7 +11,7 @@
           <a class="weui-cell weui-cell_access" @click="departmentPick">
             <div class="weui-cell__hd"><label class="weui-label">部门</label></div>
             <div class="weui-cell__bd">
-              <p class="department-text">{{ department }}</p>
+              <p class="department-text">{{ user.department }}</p>
             </div>
             <div class="weui-cell__ft"></div>
           </a>
@@ -20,7 +20,7 @@
               <label class="weui-label">密码</label>
             </div>
             <div class="weui-cell__bd">
-              <input class="weui-input" type="password" placeholder="请输入密码" v-model="password">
+              <input class="weui-input" type="password" placeholder="请输入密码" v-model="user.password">
             </div>
           </div>
         </div>
@@ -40,11 +40,18 @@ import weui from 'weui.js'
 export default {
   data () {
     return {
-      department: '请选择部门',
-      password: ''
+      user: {
+        department: '请选择部门',
+        password: ''
+      }
     }
   },
   methods: {
+    login () {
+      if (this.user.department !== '请选择部门' && this.user.password) {
+        this.$store.dispatch('login', this.user)
+      }
+    },
     departmentPick () {
       weui.picker([
         {
@@ -52,12 +59,12 @@ export default {
           value: 1
         },
         {
-          label: '[研会]学术部',
+          label: '[研会]文娱部',
           value: 2
         }
       ], {
         onConfirm: (result) => {
-          this.department = result[0].label
+          this.user.department = result[0].label
         },
         id: 'material-picker'
       })

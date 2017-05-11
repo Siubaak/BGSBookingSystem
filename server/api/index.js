@@ -15,11 +15,28 @@ module.exports = {
     return Users.update({ _id: user._id }, { $set: user }).exec()
   },
   removeUser(userId) {
-    return Promise.all([
-      Users.remove({ _id: userId }).exec(),
-      MaterialBooks.remove({ userId: userId }).exec(),
-      MeetingBooks.remove({ userId: userId }).exec()
-    ])
+    return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
+      .then((result) => {
+        if (result.length) {
+          return Promise.reject('The user still has book(s) of material.')
+        } else {
+          return MeetingBooks.find({ userId: userId, condition: 'book' }).exec()
+        }
+      })
+      .then((result) => {
+        if (result.length) {
+          return Promise.reject('The user still has book(s) of meeting.')
+        } else {
+          return Promise.all([
+            Users.remove({ _id: userId }).exec(),
+            MaterialBooks.remove({ userId: userId }).exec(),
+            MeetingBooks.remove({ userId: userId }).exec()
+          ])
+        }
+      })
+      .catch((err) => {
+        return Promise.reject(err)
+      })
   },
   getUser(department) {
     return Users.findOne({ department: department }).exec()
@@ -32,29 +49,26 @@ module.exports = {
     return Materials.create(material).exec()
   },
   updateMaterial(material) {
-    Materials.update({ _id: material._id }, { $set: material }).exec()
+    if (material.quantity === material.left) {
+      return Materials.update({ _id: material._id }, { $set: material }).exec()
+    } else {
+      return Promise.reject('The material is still under book/lend condition(s).')
+    }
   },
-  removeMaterial(material) {
-    MaterialBooks.findOne({ materialId: material_id, $or:{}})
-      .then((materialBook) => {
-        return Promise.reject(`${materialBook.activity} has booked/borrowed.`)
-      })
-      .catch((err) => {
-
-      })
+  removeMaterial(materialId) {
     if (material.quantity === material.left) {
       return Promise.all([
-        Materials.remove({ _id: material._id }).exec(),
-        MaterialBooks.update({ 'materialBook.materialId': material_id }, {
+        Materials.remove({ _id: materialId }).exec(),
+        MaterialBooks.update({ 'materialBook.materialId': materialId }, {
           $pull:
-          { book: { materialId: material._id } }
+          { book: { materialId: materialId } }
         }).exec()
       ])
     } else {
-      return Promise.reject('The material remains book/lend.')
+      return Promise.reject('The material is still under book/lend condition(s).')
     }
   },
-  getMaterialList(FindLeft = false) {
+  getMaterialList(FindLeft = true) {
     if (FindLeft) {
       return Materials.find({ left: { $gt: 0 } }).exec()
     } else {
@@ -71,7 +85,7 @@ module.exports = {
     }
     return Promise.all(materialBookProccessingList)
   },
-  changeMaterialBookCondition(materialBook, condition = 'return') {
+  updateMaterialBookCondition(materialBook, condition = 'return') {
     if (materialBook.condition !== 'return' && materialBook.condition !== 'fail' && condition !== 'book' && condition !== 'lend') {
       let materialBookProccessingList = []
       materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: -1 } }).exec())
@@ -106,22 +120,44 @@ module.exports = {
   },
 // 会议室预约相关API函数
   createMeetingBook(meetingBook) {
-    return Promise.all([
-      Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: 1 } }).exec(),
-      MeetingBooks.create(meetingBook).exec(),
-      Meetings.update({ date: meetingBook.date }, { $set: { 'condition.time': meetingBook.time } }).exec()
-    ])
+    return MeetingBooks.find({ date: meetingBook.date, time: meetingBook.time, condition: 'book' }).exec()
+      .then((result) => {
+        if (result.length) {
+          return Promise.reject('The meeting room has been booked at that time.')
+        } else {
+          return Promise.all([
+            Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: 1 } }).exec(),
+            MeetingBooks.create(meetingBook).exec()
+          ])
+        }
+      })
+      .catch((err) => {
+        Promise.reject(err)
+      })
+  },
+  updateMeetingBookCondition(meetingBook, condition = 'return') {
+    if (meetingBook.condition !== 'return' && meetingBook.condition !== 'fail' && condition !== 'book') {
+      return Promise.all([
+        Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
+        MeetingBooks.update({ _id: meetingBook._id }, { $set: { conditon: conditon } }).exec()
+      ])
+    } else {
+      return Promise.reject('Changing to the book condition is not allowed or the book has returned/failed')
+    }
   },
   removeMeetingBook(meetingBook) {
-    return Promise.all([
-      Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
-      MeetingBooks.remove({ _id: meetingBook._id }).exec(),
-      Meetings.update({ date: meetingBook.date }, { $set: { 'condition.time': meetingBook.time } }).exec()
-    ])
+    if (meetingBook.condition === 'book') {
+      return Promise.all([
+        Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
+        MeetingBooks.remove({ _id: meetingBook._id }).exec()
+      ])
+    } else {
+      return MeetingBooks.remove({ _id: meetingBook._id }).exec()
+    }
   },
   getMeetingBookList(userId = null) {
     if (userId) {
-      return MeetingBooks.find({ userId: userId }).exec()
+      return MeetingBooks.find({ userId: userId, condition: 'book' }).exec()
     } else {
       return MeetingBooks.find().exec()
     }
