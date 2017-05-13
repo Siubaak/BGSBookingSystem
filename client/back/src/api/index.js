@@ -5,41 +5,53 @@ if (localStorage.getItem('jwt')) {
 }
 
 export default {
-// 登录API
-  adminLogin (objectAccountPassword) {
-    return axios.post('/api/login', objectAccountPassword)
+// 管理员API
+  adminLogin (oAccountPassword) {
+    return axios.post('/api/admin/login', oAccountPassword)
   },
-// 文章API
-  createArticle (objectArticle) {
-    return axios.post('/api/token/article/create', objectArticle)
+  adminUpdate (oPassword) {
+    return axios.post('/api/admin/update/password', oPassword)
   },
-  removeArticle (objectArticleId) {
-    return axios.post('/api/token/article/remove', objectArticleId)
+// 用户API
+  userCreate (oDepartment) {
+    return axios.post('/api/admin/user/create', oDepartment)
   },
-  updateArticle (objectArticle) {
-    return axios.post('/api/token/article/update', objectArticle)
+  userAuth (oUser) {
+    return axios.post('/api/admin/user/update/auth', oUser)
   },
-  getArticleList (objectPageNumber) {
-    return axios.post('/api/token/article/list', objectPageNumber)
+  userReset (oUser) {
+    return axios.post('/api/admin/user/update/reset', oUser)
   },
-// 分类API
-  createClassification (objectName) {
-    return axios.post('/api/token/classification/create', objectName)
+  userRemove (oUserId) {
+    return axios.post('/api/admin/user/remove', oUserId)
   },
-  removeClassification (objectClassificationId) {
-    return axios.post('/api/token/classification/remove', objectClassificationId)
+  userListGet () {
+    return axios.get('/api/admin/user/list')
   },
-  updateClassification (objectClassification) {
-    return axios.post('/api/token/classification/update', objectClassification)
+// 通知公告API
+  notificationGet () {
+    return axios.get('/api/admin/notification')
   },
-  getClassificationList () {
-    return axios.get('/api/token/classification/list')
+  notificationUpdate (oNotification) {
+    return axios.post('/api/admin/notification/update', oNotification)
   },
-// 评论API
-  removeComment (objectCommentId) {
-    return axios.post('/api/token/comment/remove', objectCommentId)
+// 物资API
+  materialCreate (oMaterial) {
+    return axios.post('/api/admin/material/create', oMaterial)
   },
-  getCommentList (objectPageNumber) {
-    return axios.post('/api/token/comment/list', objectPageNumber)
+  materialUpdate (oMaterial) {
+    return axios.post('/api/admin/material/update', oMaterial)
+  },
+  materialRemove (oMaterialId) {
+    return axios.post('/api/admin/material/update', oMaterialId)
+  },
+  materialListGet () {
+    return axios.get('/api/admin/material/list')
+  },
+  materialBookListGet () {
+    return axios.get('/api/admin/material/book/list')
+  },
+  materialBookListGetAll () {
+    return axios.get('/api/admin/material/book/list/all')
   }
 }

@@ -8,7 +8,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <router-link class="navbar-brand" to="/admin" @click.native="clickArticleList">研会办公室服务平台-后台</router-link>
+          <router-link class="navbar-brand" to="/admin" @click.native="clickArticleList"><small>研会办公室服务平台-后台</small></router-link>
         </div>
         <div class="collapse navbar-collapse" id="collapse-narbar">
           <ul class="nav navbar-nav">
@@ -22,15 +22,34 @@
                 <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 会议室预约
               </router-link>
             </li>
-            <li :class="{ active: isItem3Selected }">
-              <router-link to="/admin/notification" @click.native="item3Click">
-                <small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> 通知公告
-              </router-link>
-            </li>
-            <li :class="{ active: isItem4Selected }">
-              <router-link to="/admin/user" @click.native="item4Click">
-                <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> 用户管理
-              </router-link>
+            <li class="dropdown" :class="{ active: isItem3Selected }">
+              <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <small><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></small>
+                设置
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <router-link to="/admin/setting/notification" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> 通知公告编辑
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/admin/setting/material" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 全部物资申请及物资管理
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/admin/setting/meeting" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 全部会议室预约
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/admin/setting/user" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> 用户及管理员设置
+                  </router-link>
+                </li>
+              </ul>
             </li>
           </ul>
           <button type="button" class="btn btn-primary navbar-btn pull-right" @click="logout">

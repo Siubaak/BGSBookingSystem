@@ -1,14 +1,15 @@
 <template>
   <div id="app">
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
   </div>
 </template>
 
 <style>
 body {
-  background-color: #EBFFE5 !important;
+  background-color: #ECF4F7 !important;
   padding-top: 70px;
+}
+textarea {
+  resize: none;
 }
 </style>
