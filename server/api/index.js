@@ -1,4 +1,4 @@
-let { Admins, Users, Notifications, Materials, MaterialBooks, MeetingBooks } = require('../lib/mongo')
+let { Admins, Users, Notifications, Materials, MaterialBooks, MaterialBookItems, MeetingBooks } = require('../lib/mongo')
 
 module.exports = {
 // 用户相关API函数
@@ -15,34 +15,21 @@ module.exports = {
     return Users.update({ _id: user._id }, { $set: user }).exec()
   },
   removeUser(userId) {
-    return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
-      .then((result) => {
-        if (result.length) {
-          return Promise.reject('The user still has book(s) of material.')
-        } else {
-          return MeetingBooks.find({ userId: userId, condition: 'book' }).exec()
-        }
-      })
-      .then((result) => {
-        if (result.length) {
-          return Promise.reject('The user still has book(s) of meeting.')
-        } else {
-          return Promise.all([
-            Users.remove({ _id: userId }).exec(),
-            MaterialBooks.remove({ userId: userId }).exec(),
-            MeetingBooks.remove({ userId: userId }).exec()
-          ])
-        }
-      })
-      .catch((err) => {
-        return Promise.reject(err)
-      })
+    return Promise.all([
+      Users.remove({ _id: userId }).exec(),
+      MaterialBooks.remove({ userId: userId }).exec(),
+      MaterialBookItems.remove({ userId: userId }).exec(),
+      MeetingBooks.remove({ userId: userId }).exec()
+    ])
   },
-  getUser(department) {
+  getUserByDepartment(department) {
     return Users.findOne({ department: department }).exec()
   },
+  getUserById(userId) {
+    return Users.findOne({ _id: userId }).exec()
+  },
   getUserList() {
-    return Users.find().sort({ _id:-1 }).exec()
+    return Users.find().sort({ _id: -1 }).exec()
   },
 // 通知公告相关API函数
   updateNotification(notification) {
@@ -55,119 +42,94 @@ module.exports = {
   createMaterial(material) {
     return Materials.create(material).exec()
   },
-  updateMaterial(materialUpdate) {
-    Materials.findOne({ _id: materialUpdate._id }).exec()
-      .then((material) => {
-        if (material.quantity === material.left) {
-          return Materials.update({ _id: material._id }, { $set: materialUpdate }).exec()
-        } else {
-          return Promise.reject('The material is still under book/lend condition(s).')
-        }
-      })
-      .catch((err) => {
-        return Promise.reject(err)
-      })
+  updateMaterial(material) {
+    return Materials.update({ _id: material._id }, { $set: material }).exec()
   },
   removeMaterial(materialId) {
-    Materials.findOne({ _id: materialId }).exec()
-      .then((material) => {
-        if (material.quantity === material.left) {
-          return Promise.all([
-            Materials.remove({ _id: materialId }).exec(),
-            MaterialBooks.update({ 'materialBook.materialId': materialId }, {
-              $pull:
-              { book: { materialId: materialId } }
-            }).exec()
-          ])
-        } else {
-          return Promise.reject('The material is still under book/lend condition(s).')
-        }
-      })
-      .catch((err) => {
-        return Promise.reject(err)
-      })
+    return Promise.all([
+      Materials.remove({ _id: materialId }).exec(),
+      MaterialBookItems.remove({ materialId: materialId }).exec()
+    ])
   },
-  getMaterialList(FindLeft = true) {
-    if (FindLeft) {
-      return Materials.find({ left: { $gt: 0 } }).sort({ _id:-1 }).exec()
-    } else {
-      return Materials.find().sort({ _id:-1 }).exec()
-    }
+  getMaterialList(findAll) {
+    return (async () => {
+      let materialList = await Materials.find().sort({ _id: -1 }).exec()
+      for (let material of materialList) {
+        let materialBookItems = await MaterialBookItems.find({ materialId: material._id}).exec()
+        let book = 0
+        switch (materialBookItems.length) {
+          case 0:
+            break
+          case 1:
+            book = materialBookItems[0].book
+            break
+          default:
+            book = materialBookItems.reduce((a, b) => { return a.book + b.book })
+        }
+        material.left = material.quantity - book
+      }
+      if (!findAll) {
+        materialList = materialList.filter((material) => {
+          return material.left > 0
+        })
+      }
+      return Promise.resolve(materialList)
+    })()
   },
 // 物资申请相关API函数
-  createMaterialBook(materialBook) {
-    let materialBookProccessingList = []
-    materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: 1 } }).exec())
-    materialBookProccessingList.push(MaterialBooks.create(materialBook).exec())
-    for (let bookItem in materialBook.book) {
-      materialBookProccessingList.push(Materials.update({ _id: bookItem.materialId }, { $inc: { left: -bookItem.quantity } }).exec())
-    }
-    return Promise.all(materialBookProccessingList)
-  },
-  updateMaterialBookCondition(materialBook, condition = 'return') {
-    if (materialBook.condition !== 'return' && materialBook.condition !== 'fail' && condition !== 'book' && condition !== 'lend') {
-      let materialBookProccessingList = []
-      materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: -1 } }).exec())
-      materialBookProccessingList.push(MaterialBooks.update({ _id: materialBook._id }, { $set: { conditon: conditon } }).exec())
-      for (let bookItem in materialBook.book) {
-        materialBookProccessingList.push(Materials.update({ _id: bookItem.materialid }, { $inc: { left: bookItem.quantity } }).exec())
-      }
-      return Promise.all(materialBookProccessingList)
-    } else {
-      return Promise.reject('Changing to the book/lend condition is not allowed or the book has returned/failed')
-    }
-  },
-  removeMaterialBook(materialBook) {
-    if (materialBook.condition !== 'return' && materialBook.condition !== 'fail') {
-      let materialBookProccessingList = []
-      materialBookProccessingList.push(Users.update({ _id: materialBook.userId }, { $inc: { materialBook: -1 } }).exec())
-      materialBookProccessingList.push(MaterialBooks.remove({ _id: materialBook._id }).exec())
-      for (let bookItem in materialBook.book) {
-        materialBookProccessingList.push(Materials.update({ _id: bookItem.materialId }, { $inc: { left: bookItem.quantity } }).exec())
-      }
-      return Promise.all(materialBookProccessingList)
-    } else {
-      return MaterialBooks.remove({ _id: materialBook._id }).exec()
-    }
-  },
-  getMaterialBookList(userId = null) {
-    let addMaterialInfo = async (materialBooks) => {
-      for (let materialBook of materialBooks) {
-        for (let material of materialBook.book) {
-          let materialInfo = await Materials.findOne({ _id: material.materialId}).exec()
-          material.name = materialInfo.name
-          material.unit = materialInfo.unit
+  createMaterialBook(materialBook, materialBookItems) {
+    return (async () => {
+      let materialBooks = await MaterialBooks.find({ userId: materialBook.userId }).exec()
+      if (materialBooks.length < 4) {
+        let materialBookId = (await MaterialBooks.create(materialBook).exec()).insertedIds[0]
+        for (let materialBookItem of materialBookItems) {
+          materialBookItem.materialBookId = materialBookId
         }
-      }
-      return materialBooks
-    }
-    return new Promise((resolve, reject) => {
-      if (userId = 'back') {
-        MaterialBooks.find({ $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
-          .then((materialBooks) => {
-            return resolve(addMaterialInfo(materialBooks))
-          })
-          .catch((err) => {
-            return reject(err)
-          })
-      } else if (userId) {
-        MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
-          .then((materialBooks) => {
-            return resolve(addMaterialInfo(materialBooks))
-          })
-          .catch((err) => {
-            return reject(err)
-          })
+        let result = await MaterialBookItems.create(materialBookItems).exec()
+        return Promise.resolve(result)
       } else {
-        MaterialBooks.find().sort({ _id:-1 }).exec()
-          .then((materialBooks) => {
-            return resolve(addMaterialInfo(materialBooks))
-          })
-          .catch((err) => {
-            return reject(err)
-          })
+        return Promise.resolve('预约已满')
       }
-    })
+    })()
+  },
+  updateMaterialBookCondition(materialBookId, condition) {
+    return Promise.all([
+      MaterialBooks.update({ _id: materialBookId }, { $set : { condition: condition } }).exec(),
+      MaterialBookItems.update({ materialBookId: materialBookId }, { $set : { condition: condition } }, { multi: true }).exec(),
+    ])
+  },
+  removeMaterialBook(materialBookId) {
+    return Promise.all([
+      MaterialBooks.remove({ _id: materialBookId }).exec(),
+      MaterialBookItems.remove({ materialBookId: materialBookId }).exec(),
+    ])
+  },
+  getMaterialBookList(userId) {
+    return (async () => {
+      let materialBooks = await (() => {
+        switch(userId)
+        {
+          case undefined:
+            return MaterialBooks.find().sort({ _id: -1 }).exec()
+          case 'back':
+            return MaterialBooks.find({ $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
+          default:
+            return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
+        }
+      })()
+      for (let materialBook of materialBooks) {
+        let user = await Users.findOne({ _id: materialBook.userId }).exec()
+        materialBook.user = user.department
+        let materialBookItems = await MaterialBookItems.find({ materialBookId: materialBook._id}).exec()
+        for (let materialBookItem of materialBookItems) {
+          let material = await Materials.findOne({ _id: materialBookItem.materialId }).exec()
+          materialBookItem.name = material.name
+          materialBookItem.unit = material.unit
+        }
+        materialBook.book = materialBookItems
+      }
+      return Promise.resolve(materialBooks)
+    })()
   },
 // 会议室预约相关API函数
   createMeetingBook(meetingBook) {
@@ -183,7 +145,7 @@ module.exports = {
         }
       })
       .catch((err) => {
-        Promise.reject(err)
+        return Promise.reject(err)
       })
   },
   updateMeetingBookCondition(meetingBook, condition = 'return') {

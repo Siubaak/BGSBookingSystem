@@ -1,5 +1,5 @@
-var logToken = () => {
-  var token = localStorage.getItem('jwt')
+let logToken = () => {
+  let token = localStorage.getItem('jwt')
   if (token) {
     const payload = JSON.parse(window.atob(token.split('.')[1]))
     if (payload.exp > Date.now() / 1000) {

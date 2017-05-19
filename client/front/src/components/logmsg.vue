@@ -1,5 +1,5 @@
 <template>
-  <div id="material">
+  <div id="logmsg">
     <div class="weui-msg">
       <div class="weui-msg__icon-area"><i class="weui-icon-info weui-icon_msg"></i></div>
       <div class="weui-msg__text-area">

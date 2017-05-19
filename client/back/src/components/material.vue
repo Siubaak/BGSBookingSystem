@@ -8,20 +8,20 @@
         </h4>
       </div>
       <ul class="list-group">
-        <li class="list-group-item" v-for="(materialBookItem, index) in materialBooks">
-          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBookItem.user }}
-          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBookItem.name }}
-          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBookItem.phone }}<br>
-          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBookItem.activity }}<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBookItem.takeDate }}领取，预计{{ materialBookItem.returnDate }}归还<br>
-          <div v-show="materialBookItem.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBookItem.remark }}</div>
+        <li class="list-group-item" v-for="(materialBook, index) in materialBooks">
+          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBook.user }}
+          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBook.name }}
+          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
+          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBook.takeDate }}领取，预计{{ materialBook.returnDate }}归还<br>
+          <div v-show="materialBook.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBook.remark }}</div>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
-          <label v-for="(bookItem, index) of materialBookItem.book">
-            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book === -1 ? '若干' : bookItem.book }}{{ bookItem.unit }}&nbsp
+          <label v-for="(bookItem, index) of materialBook.book">
+            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book }}{{ bookItem.unit }}&nbsp
           </label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
-                    :disabled="materialBookItem.condition === 'lend' ? 'disabled' : null"
+                    :disabled="materialBook.condition === 'lend' ? 'disabled' : null"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               借出
             </button>
@@ -30,7 +30,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-primary" type="button">确认</button>
+                    <button class="btn btn-sm btn-primary" type="button" @click="materialBookUpdate(materialBook._id, 'lend')">确认</button>
                   </span>
                 </div>
               </li>
@@ -38,7 +38,7 @@
           </div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-info dropdown-toggle"
-                    :disabled="materialBookItem.condition !== 'lend' ? 'disabled' : null"
+                    :disabled="materialBook.condition !== 'lend' ? 'disabled' : null"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               归还
             </button>
@@ -47,7 +47,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-info" type="button">确认</button>
+                    <button class="btn btn-sm btn-info" type="button" @click="materialBookUpdate(materialBook._id, 'return')">确认</button>
                   </span>
                 </div>
               </li>
@@ -63,7 +63,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdate(materialBook._id, 'fail')">确认</button>
                   </span>
                 </div>
               </li>
@@ -77,7 +77,7 @@
             <ul class="dropdown-menu">
               <li class="edit-button">
                 <div class="input-group">
-                  <input v-model="materialBookItem.remark" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
+                  <input v-model="materialBook.remark" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
                     <button class="btn btn-sm btn-danger" type="button">确认</button>
                   </span>
@@ -85,10 +85,11 @@
               </li>
             </ul>
           </div>
-          <span class="label label-condition"
-            :class="{ 'label-default': materialBookItem.condition === 'book',
-                      'label-primary': materialBookItem.condition !== 'book'}">
-            目前状态为：{{ materialBookItem.condition === 'book' ? '预约' : '借出' }}
+          <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
+            目前状态为：预约
+          </span>
+          <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
+            目前状态为：借出
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
@@ -107,6 +108,20 @@ export default {
     }
   },
   methods: {
+    materialBookUpdate (materialBookId, condition) {
+      if (this.ok === 'bgs') {
+        api.materialBookUpdate({ materialBookId }, condition)
+          .then((res) => {
+            this.materialBookListGet()
+          })
+          .catch((err) => {
+            alert(err)
+          })
+        this.ok = ''
+      } else {
+        alert('请输入bgs并点击确认按钮以删除')
+      }
+    },
     materialBookListGet () {
       api.materialBookListGet()
         .then((res) => {
@@ -117,7 +132,7 @@ export default {
         })
     }
   },
-  created () {
+  beforeMount () {
     this.materialBookListGet()
   }
 }

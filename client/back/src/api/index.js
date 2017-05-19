@@ -43,10 +43,23 @@ export default {
     return axios.post('/api/admin/material/update', oMaterial)
   },
   materialRemove (oMaterialId) {
-    return axios.post('/api/admin/material/update', oMaterialId)
+    return axios.post('/api/admin/material/remove', oMaterialId)
   },
   materialListGet () {
     return axios.get('/api/admin/material/list')
+  },
+  materialBookUpdate (oMaterialBookId, condition) {
+    switch (condition) {
+      case 'lend':
+        return axios.post('/api/admin/material/book/update/lend', oMaterialBookId)
+      case 'return':
+        return axios.post('/api/admin/material/book/update/return', oMaterialBookId)
+      default:
+        return axios.post('/api/admin/material/book/update/fail', oMaterialBookId)
+    }
+  },
+  materialBookRemove (oMaterialBookId) {
+    return axios.post('/api/admin/material/book/remove', oMaterialBookId)
   },
   materialBookListGet () {
     return axios.get('/api/admin/material/book/list')

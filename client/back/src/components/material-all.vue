@@ -16,11 +16,11 @@
         <div id="edit" class="collapse">
           <form role="form" @submit.prevent="materialCreate">
             <div class="form-group">
-              <label for="name">物资名称</label>
+              <label for="name">物资名称（如：桌子、帐篷</label>
               <input type="text" class="form-control" id="name" placeholder="请输入物资名称" required v-model="material.name"></input>
             </div>
             <div class="form-group">
-              <label for="quantity">物资数量（非消耗品如实填写，消耗品填写-1）</label>
+              <label for="quantity">物资数量（如实填写，若消耗品数量过多，可填较大的数量如10000）</label>
               <input type="number" class="form-control" id="quantity" placeholder="请输入物资数量" required v-model.number="material.quantity"></input>
             </div>
             <div class="form-group">
@@ -28,11 +28,32 @@
               <input type="text" class="form-control" id="unit" placeholder="请输入物资单位" required v-model="material.unit"></input>
             </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
-              <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存添加
+              <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存
             </button>
           </form>
         </div>
       </div>
+       <ul class="list-group">
+        <li class="list-group-item" v-for="materialItem of materials">
+          {{ materialItem.name }}共{{ materialItem.quantity }}{{ materialItem.unit }}，剩{{ materialItem.left < 0 ? 0 : materialItem.left }}{{ materialItem.unit }}<br>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              删除
+            </button>
+            <ul class="dropdown-menu">
+              <li class="edit-button">
+                <div class="input-group">
+                  <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
+                  <span class="input-group-btn">
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialRemove(materialItem._id)">确认</button>
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
     </div>
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -42,36 +63,43 @@
         </h4>
       </div>
       <ul class="list-group">
-        <li class="list-group-item" v-for="(materialBookItem, index) in materialBooks">
-          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBookItem.user }}
-          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBookItem.name }}
-          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBookItem.phone }}<br>
-          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBookItem.activity }}<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBookItem.takeDate }}领取，预计{{ materialBookItem.returnDate }}归还<br>
+        <li class="list-group-item" v-for="(materialBook, index) of materialBooks">
+          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBook.user }}
+          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBook.name }}
+          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
+          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBook.takeDate }}领取，预计{{ materialBook.returnDate }}归还<br>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
-          <label v-for="(bookItem, index) of materialBookItem.book">
-            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book === -1 ? '若干' : bookItem.book }}{{ bookItem.unit }}&nbsp
+          <label v-for="(bookItem, index) of materialBook.book">
+            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book }}{{ bookItem.unit }}&nbsp
           </label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              修改
+              删除
             </button>
             <ul class="dropdown-menu">
               <li class="edit-button">
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookRemove(materialBook._id)">确认</button>
                   </span>
                 </div>
               </li>
             </ul>
           </div>
-          <span class="label label-condition"
-            :class="{ 'label-default': materialBookItem.condition === 'book',
-                      'label-primary': materialBookItem.condition !== 'book'}">
-            目前状态为：{{ materialBookItem.condition === 'book' ? '预约' : '借出' }}
+          <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
+            目前状态为：预约
+          </span>
+          <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
+            目前状态为：借出
+          </span>
+          <span class="label label-condition label-info" v-show="materialBook.condition === 'return'">
+            目前状态为：归还
+          </span>
+          <span class="label label-condition label-danger" v-show="materialBook.condition === 'fail'">
+            目前状态为：作废
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
@@ -89,7 +117,7 @@ export default {
       material: {
         name: '',
         unit: '',
-        quantity: null
+        quantity: 1
       },
       materials: [],
       materialBooks: []
@@ -97,19 +125,31 @@ export default {
   },
   methods: {
     materialCreate () {
-      if (this.material.quantity === -1) {
-        this.material.left = 1
-      } else {
-        this.material.left = this.material.quantity
+      if (this.material.name && this.material.unit && this.material.quantity) {
+        api.materialCreate(this.material)
+          .then((res) => {
+            this.materialListGet()
+            this.materialBookListGetAll()
+          })
+          .catch((err) => {
+            alert(err)
+          })
       }
-      api.materialCreate(this.material)
-        .then((res) => {
-          console.log(res.data.msg || res.data.err)
-          this.materialListGet()
-        })
-        .catch((err) => {
-          alert(err)
-        })
+    },
+    materialRemove (materialId) {
+      if (this.ok === 'bgs') {
+        api.materialRemove({ materialId })
+          .then((res) => {
+            this.materialListGet()
+            this.materialBookListGetAll()
+          })
+          .catch((err) => {
+            alert(err)
+          })
+        this.ok = ''
+      } else {
+        alert('请输入bgs并点击确认按钮以删除')
+      }
     },
     materialListGet () {
       api.materialListGet()
@@ -119,6 +159,21 @@ export default {
         .catch((err) => {
           alert(err)
         })
+    },
+    materialBookRemove (materialBookId) {
+      if (this.ok === 'bgs') {
+        api.materialBookRemove({ materialBookId })
+          .then((res) => {
+            this.materialListGet()
+            this.materialBookListGetAll()
+          })
+          .catch((err) => {
+            alert(err)
+          })
+        this.ok = ''
+      } else {
+        alert('请输入bgs并点击确认按钮以删除')
+      }
     },
     materialBookListGetAll () {
       api.materialBookListGetAll()
@@ -130,7 +185,8 @@ export default {
         })
     }
   },
-  created () {
+  beforeMount () {
+    this.materialListGet()
     this.materialBookListGetAll()
   }
 }

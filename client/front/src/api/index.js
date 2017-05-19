@@ -9,22 +9,31 @@ export default {
   login (oDepartmentPassword) {
     return axios.post('/api/login', oDepartmentPassword)
   },
-  updateUser (oUser) {
-    return axios.post('/api/user/update', oUser)
+  userGet (oUserId) {
+    return axios.post('/api/user', oUserId)
   },
-  getMaterialList () {
+  userListGet () {
+    return axios.get('/api/user/list')
+  },
+  userUpdateInfo (oUser) {
+    return axios.post('/api/user/update/info', oUser)
+  },
+  userUpdatePassword (oUser) {
+    return axios.post('/api/user/update/password', oUser)
+  },
+  materialListGet () {
     return axios.get('/api/material/list')
   },
-  createMaterialBook (oMaterialBook) {
+  materialBookCreate (oMaterialBook) {
     return axios.post('/api/material/book/create', oMaterialBook)
   },
-  getMaterialBookList (oUserId) {
+  materialBookListGet (oUserId) {
     return axios.post('/api/material/book/list', oUserId)
   },
-  createMeetingBook (oMeetingBook) {
+  meetingBookCreate (oMeetingBook) {
     return axios.post('/api/meeting/book/create', oMeetingBook)
   },
-  getMeetingBookList (oUserId) {
+  meetingBookListGet (oUserId) {
     return axios.post('/api/meeting/book/list', oUserId)
   }
 }

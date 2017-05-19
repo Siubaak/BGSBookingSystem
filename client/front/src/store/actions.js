@@ -6,17 +6,17 @@ export default {
     api.login(objectDepartmentPassword)
       .then((res) => {
         if (res.data.token) {
-          weui.toast('登录成功', 2000)
+          weui.toast('登录成功', 1000)
           commit('USER_LOGIN', res.data.token)
           router.replace({ path: '/' })
         } else {
-          weui.toast(`登录失败（${res.data.msg || res.data.err}）`, 2000)
+          weui.alert(`${res.data.msg || res.data.err}`)
         }
       })
   },
   logout ({ commit }) {
     commit('USER_LOGOUT')
-    router.push({ path: '/' })
-    weui.toast('注销成功', 2000)
+    router.push({ path: '/log' })
+    weui.toast('注销成功', 1000)
   }
 }

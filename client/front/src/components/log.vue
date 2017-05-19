@@ -27,7 +27,7 @@
       </div>
       <div class="weui-msg__opr-area">
         <p class="weui-btn-area">
-          <router-link to="/" class="weui-btn weui-btn_primary">登录</router-link>
+          <a @click="login" class="weui-btn weui-btn_primary">登录</a>
           <a href="javascript:history.back();" class="weui-btn weui-btn_warn">取消</a>
         </p>
       </div>
@@ -36,10 +36,13 @@
 </template>
 
 <script>
+import api from '../api'
 import weui from 'weui.js'
 export default {
   data () {
     return {
+      userList: [],
+      userListForPick: [],
       user: {
         department: '请选择部门',
         password: ''
@@ -52,23 +55,32 @@ export default {
         this.$store.dispatch('login', this.user)
       }
     },
+    userListGet () {
+      api.userListGet()
+        .then((res) => {
+          if (res.data.userList.length) {
+            this.userListForPick = []
+            this.userList = res.data.userList
+            this.userList.forEach((user, index) => {
+              this.userListForPick.push({
+                label: `${user.department}`,
+                value: index
+              })
+            })
+          }
+        })
+    },
     departmentPick () {
-      weui.picker([
-        {
-          label: '[研会]学术部',
-          value: 1
-        },
-        {
-          label: '[研会]文娱部',
-          value: 2
-        }
-      ], {
+      weui.picker(this.userListForPick, {
         onConfirm: (result) => {
           this.user.department = result[0].label
         },
         id: 'material-picker'
       })
     }
+  },
+  beforeMount () {
+    this.userListGet()
   }
 }
 </script>

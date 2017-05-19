@@ -12,7 +12,7 @@ import user from '../components/user'
 
 Vue.use(Router)
 
-var router = new Router({
+let router = new Router({
   mode: 'history',
   routes: [{
     path: '/login',

@@ -182,7 +182,11 @@ export default {
       if (this.department) {
         api.userCreate({ department: this.department })
           .then((res) => {
-            this.userListGet()
+            if (res.data.msg) {
+              this.userListGet()
+            } else {
+              alert('创建失败')
+            }
           })
           .catch((err) => {
             alert(err)
@@ -195,7 +199,11 @@ export default {
       if (this.ok === 'bgs') {
         api.userRemove({ userId })
           .then((res) => {
-            this.userListGet()
+            if (res.data.msg) {
+              this.userListGet()
+            } else {
+              alert('删除失败')
+            }
           })
           .catch((err) => {
             alert(err)
@@ -209,7 +217,11 @@ export default {
       if (this.ok === 'bgs') {
         api.userAuth(user)
           .then((res) => {
-            this.userListGet()
+            if (res.data.msg) {
+              this.userListGet()
+            } else {
+              alert('授权失败')
+            }
           })
           .catch((err) => {
             alert(err)
@@ -223,7 +235,11 @@ export default {
       if (this.ok === 'bgs') {
         api.userReset(user)
           .then((res) => {
-            this.userListGet()
+            if (res.data.msg) {
+              this.userListGet()
+            } else {
+              alert('重置失败')
+            }
           })
           .catch((err) => {
             alert(err)
@@ -247,7 +263,7 @@ export default {
         })
     }
   },
-  created () {
+  beforeMount () {
     this.userListGet()
   }
 }

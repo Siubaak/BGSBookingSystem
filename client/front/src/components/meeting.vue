@@ -1,68 +1,62 @@
 <template>
   <div id="meeting">
-    <div v-show="!isLogin">
-      <logmsg></logmsg>
+    <div class="weui-cells__title">预约人信息填写</div>
+    <div class="weui-cells weui-cells_form">
+      <div class="weui-cell">
+        <div class="weui-cell__hd">
+          <label class="weui-label">预约人</label>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="text" placeholder="请输入姓名" v-model="name">
+        </div>
+      </div>
+      <div class="weui-cell">
+        <div class="weui-cell__hd">
+          <label class="weui-label">联系方式</label>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="number" pattern="[0-9]*" placeholder="请输入手机号" v-model="phone">
+        </div>
+      </div>
     </div>
-    <div v-show="isLogin">
-      <div class="weui-cells__title">预约人信息填写</div>
-      <div class="weui-cells weui-cells_form">
-        <div class="weui-cell">
-          <div class="weui-cell__hd">
-            <label class="weui-label">预约人</label>
-          </div>
-          <div class="weui-cell__bd">
-            <input class="weui-input" type="text" placeholder="请输入姓名" v-model="name">
-          </div>
+    <div class="weui-cells__title">借用时间预约选择</div>
+    <div class="weui-cells">
+      <a class="weui-cell weui-cell_access" @click="datePick">
+        <div class="weui-cell__hd"><label class="weui-label">借用日期</label></div>
+        <div class="weui-cell__bd">
+          <p>{{ date }}</p>
         </div>
-        <div class="weui-cell">
-          <div class="weui-cell__hd">
-            <label class="weui-label">联系方式</label>
-          </div>
-          <div class="weui-cell__bd">
-            <input class="weui-input" type="number" pattern="[0-9]*" placeholder="请输入手机号" v-model="phone">
-          </div>
+        <div class="weui-cell__ft"></div>
+      </a>
+      <a class="weui-cell weui-cell_access" @click="timePick">
+        <div class="weui-cell__hd"><label class="weui-label">借用时间段</label></div>
+        <div class="weui-cell__bd">
+          <p>{{ time }}</p>
         </div>
-      </div>
-      <div class="weui-cells__title">借用时间预约选择</div>
-      <div class="weui-cells">
-        <a class="weui-cell weui-cell_access" @click="datePick">
-          <div class="weui-cell__hd"><label class="weui-label">借用日期</label></div>
-          <div class="weui-cell__bd">
-            <p>{{ date }}</p>
-          </div>
-          <div class="weui-cell__ft"></div>
-        </a>
-        <a class="weui-cell weui-cell_access" @click="timePick">
-          <div class="weui-cell__hd"><label class="weui-label">借用时间段</label></div>
-          <div class="weui-cell__bd">
-            <p>{{ time }}</p>
-          </div>
-          <div class="weui-cell__ft"></div>
-        </a>
-      </div>
-      <div class="weui-cells__title">投影仪使用申请勾选</div>
-      <div class="weui-cells weui-cells_checkbox">
-        <label class="weui-cell weui-check__label" for="projection">
-          <div class="weui-cell__hd">
-            <input type="checkbox" class="weui-check" name="checkbox" id="projection">
-            <i class="weui-icon-checked"></i>
-          </div>
-          <div class="weui-cell__bd">
-            <p>需要使用投影仪</p>
-          </div>
-        </label>
-      </div>
-      <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式和借用时间，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的会议室，若某个借用时间没有出现在选择列表中，则表明该时间已被预约。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
-      <p class="weui-btn-area">
-        <a href="javascript:history.back();" class="weui-btn weui-btn_primary">提交申请</a>
-      </p>
-      </div>
+        <div class="weui-cell__ft"></div>
+      </a>
+    </div>
+    <div class="weui-cells__title">投影仪使用申请勾选</div>
+    <div class="weui-cells weui-cells_checkbox">
+      <label class="weui-cell weui-check__label" for="projection">
+        <div class="weui-cell__hd">
+          <input type="checkbox" class="weui-check" name="checkbox" id="projection">
+          <i class="weui-icon-checked"></i>
+        </div>
+        <div class="weui-cell__bd">
+          <p>需要使用投影仪</p>
+        </div>
+      </label>
+    </div>
+    <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式和借用时间，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的会议室，若某个借用时间没有出现在选择列表中，则表明该时间已被预约。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
+    <p class="weui-btn-area">
+      <a href="javascript:history.back();" class="weui-btn weui-btn_primary">提交申请</a>
+    </p>
   </div>
 </template>
 
 <script>
 import logmsg from './logmsg'
-import store from '@/store'
 import weui from 'weui.js'
 export default {
   components: {
@@ -70,7 +64,7 @@ export default {
   },
   data () {
     return {
-      isLogin: store.state.token !== null,
+      isLogin: this.$store.state.token !== null,
       name: '',
       phone: '',
       date: '请选择日期',

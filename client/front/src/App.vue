@@ -1,8 +1,6 @@
 <template>
   <div id="app" class="full-screen">
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
   </div>
 </template>
 

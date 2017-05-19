@@ -8,8 +8,7 @@
         </h4>
       </div>
       <div class="panel-body">
-        <div v-html="markedBody"></div>
-        <button type="button" data-toggle="collapse"
+        <button type="button" data-toggle="collapse" @click="notificationGet"
           href="#edit" class="btn btn-sm btn-primary btn-group btn-group-justified">
           <small><span class="glyphicon glyphicon-edit"></span></small>
           修改公告
@@ -19,15 +18,21 @@
             <div class="form-group">
               <label for="notification">编辑器支持markdown语法，规则详见<a target="_blank" href="http://www.jianshu.com/p/q81RER">这里</a>。</label>
               <textarea type="text" class="form-control" id="notification"
-                        rows="5" v-model="notification.body">
+                        rows="5" v-model="notification.body"
+                        @input="notificationPreview">
               </textarea>
             </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
-              <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存修改
+              <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存
             </button>
           </form>
         </div>
       </div>
+      <ul class="list-group">
+        <li class="list-group-item">
+          <div v-html="markedBody"></div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -41,10 +46,20 @@ export default {
       markedBody: '',
       notification: {
         body: ''
-      }
+      },
+      waitingPreview: false
     }
   },
   methods: {
+    notificationPreview () {
+      if (!this.waitingPreview) {
+        this.waitingPreview = true
+        setTimeout(() => {
+          this.markedBody = marked(this.notification.body)
+          this.waitingPreview = false
+        }, 1000)
+      }
+    },
     notificationGet () {
       api.notificationGet()
         .then((res) => {
@@ -58,7 +73,6 @@ export default {
     notificationUpdate () {
       api.notificationUpdate(this.notification)
         .then((res) => {
-          alert(res.data.msg)
           this.markedBody = marked(this.notification.body)
         })
         .catch((err) => {
@@ -66,7 +80,7 @@ export default {
         })
     }
   },
-  created () {
+  beforeMount () {
     this.notificationGet()
   }
 }
