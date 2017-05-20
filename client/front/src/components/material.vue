@@ -34,12 +34,6 @@
         </div>
         <div class="weui-cell__ft"></div>
       </a>
-      <div class="weui-cell">
-        <div class="weui-cell__hd"><label class="weui-label">领取时间</label></div>
-        <div class="weui-cell__bd">
-          <input class="weui-input" type="text" value="下午 17:30-18:00" disabled>
-        </div>
-      </div>
       <a class="weui-cell weui-cell_access" @click="returnDatePick">
         <div class="weui-cell__hd"><label class="weui-label">归还日期</label></div>
         <div class="weui-cell__bd">
@@ -47,12 +41,6 @@
         </div>
         <div class="weui-cell__ft"></div>
       </a>
-      <div class="weui-cell">
-        <div class="weui-cell__hd"><label class="weui-label">归还时间</label></div>
-        <div class="weui-cell__bd">
-          <input class="weui-input" type="text" value="下午 17:30-18:00" disabled>
-        </div>
-      </div>
     </div>
     <div class="weui-cells__title">物资列表填写</div>
     <div class="weui-cells">
@@ -71,7 +59,7 @@
         <div class="weui-cell__ft"></div>
       </a>
     </div>
-    <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式、活动名称、领取时间、归还时间和物资借用列表，否则研会办公室将拒绝申请。只允许预约往后四天内（包括今天）的物资借用，并在领取后四天（包括领取当天）内归还，若某类物资没有出现在添加列表中，则表明该物资已全部被预约或借用。物资领取时间及归还时间均为办公室值班时间，即每周一、三、五下午17:30-18:00。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
+    <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式、活动名称、领取时间、归还时间和物资借用列表，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的物资借用，并在领取后五天（包括领取当天）内归还，若某类物资没有出现在添加列表中，则表明该物资已全部被预约或借用。物资领取时间及归还时间均为办公室值班时间，即每周一、三、五下午17:30-18:00。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
     <p class="weui-btn-area">
       <a @click="materialBookCreate" class="weui-btn weui-btn_primary">提交申请</a>
     </p>
@@ -127,9 +115,9 @@ export default {
           },
           materialBookItems: this.materialBookItems
         }).then((res) => {
-          weui.toast(`${res.data.msg || res.data.err}`, 2000)
+          weui.toast(`${res.data.msg || res.data.err}`, 1500)
         }).catch((err) => {
-          weui.toast(`${err}`, 2000)
+          weui.toast(`${err}`, 1500)
         })
       } else {
         weui.alert('请正确填写信息！')
@@ -138,14 +126,20 @@ export default {
     takeDatePick () {
       const now = new Date()
       let end = new Date()
-      end.setTime(now.getTime() + 345600000)
-      weui.datePicker({
-        start: now,
-        end: end,
-        cron: '* * 1,3,5',
+      const day = ['日', '一', '二', '三', '四', '五', '六']
+      let dateList = []
+      for (let i = 0; i !== 5; ++i) {
+        end.setTime(now.getTime() + 86400000 * i)
+        if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
+          dateList.push({
+            label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+            value: i
+          })
+        }
+      }
+      weui.picker(dateList, {
         onConfirm: (result) => {
-          this.takeDate = result[0].label + result[1].label + result[2].label
-          this.takeTime = result
+          this.takeDate = result[0].label
           this.returnDate = '请选择日期'
         },
         id: 'take-date-picker'
@@ -153,16 +147,26 @@ export default {
     },
     returnDatePick () {
       if (this.returnDate !== '请先选择领取日期') {
-        let takeDate = new Date()
-        takeDate.setFullYear(this.takeTime[0].value, this.takeTime[1].value - 1, this.takeTime[2].value)
+        const yearIndex = this.takeDate.indexOf('年')
+        const monthIndex = this.takeDate.indexOf('月')
+        const dateIndex = this.takeDate.indexOf('日')
+        let startDate = new Date()
+        startDate.setFullYear(parseInt(this.takeDate.slice(0, yearIndex)), parseInt(this.takeDate.slice(yearIndex + 1, monthIndex) - 1), parseInt(this.takeDate.slice(monthIndex + 1, dateIndex)))
         let end = new Date()
-        end.setTime(takeDate.getTime() + 345600000)
-        weui.datePicker({
-          start: takeDate,
-          end: end,
-          cron: '* * 1,3,5',
+        const day = ['日', '一', '二', '三', '四', '五', '六']
+        let dateList = []
+        for (let i = 0; i !== 5; ++i) {
+          end.setTime(startDate.getTime() + 86400000 * i)
+          if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
+            dateList.push({
+              label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+              value: i
+            })
+          }
+        }
+        weui.picker(dateList, {
           onConfirm: (result) => {
-            this.returnDate = result[0].label + result[1].label + result[2].label
+            this.returnDate = result[0].label
           },
           id: 'return-date-picker'
         })

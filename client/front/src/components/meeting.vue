@@ -64,51 +64,86 @@ export default {
   },
   data () {
     return {
-      isLogin: this.$store.state.token !== null,
+      userId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
       name: '',
       phone: '',
       date: '请选择日期',
-      time: '请选择时间'
+      dateIndex: 0,
+      time: '请先选择借用日期',
+      freeTime: [
+        [false, true, true, false],
+        [false, true, true, false],
+        [false, true, true, false],
+        [false, true, true, false],
+        [false, false, false, false]
+      ]
     }
   },
   methods: {
     datePick () {
       const now = new Date()
       let end = new Date()
-      end.setTime(now.getTime() + 432000000)
-      weui.datePicker({
-        start: now,
-        end: end,
+      let day = ['日', '一', '二', '三', '四', '五', '六']
+      let dateList = []
+      for (let i = 0; i !== 5; ++i) {
+        end.setTime(now.getTime() + 86400000 * i)
+        dateList.push({
+          label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+          value: i
+        })
+      }
+      weui.picker(dateList, {
         onConfirm: (result) => {
-          this.date = result[0].label + result[1].label + result[2].label
+          this.date = result[0].label
+          this.dateIndex = result[0].value
+          console.log(this.dateIndex)
+          this.time = '请选择时间'
         },
         id: 'date-picker'
       })
     },
     timePick () {
-      weui.picker([
-        {
-          label: '中午 12:30-14:00',
-          value: 1
-        },
-        {
-          label: '下午 17:30-19:00',
-          value: 2
-        },
-        {
-          label: '晚上 19:00-20:30',
-          value: 3
-        },
-        {
-          label: '晚上 20:30-22:00',
-          value: 4
+      if (this.time !== '请先选择借用日期') {
+        let timeList = []
+        if (this.freeTime[this.dateIndex][0]) {
+          timeList.push({
+            label: '中午 12:30-14:00',
+            value: 0
+          })
         }
-      ], {
-        onConfirm: (result) => {
-          this.time = result[0].label
-        },
-        id: 'time-picker'
-      })
+        if (this.freeTime[this.dateIndex][1]) {
+          timeList.push({
+            label: '下午 17:30-19:00',
+            value: 1
+          })
+        }
+        if (this.freeTime[this.dateIndex][2]) {
+          timeList.push({
+            label: '晚上 19:00-20:30',
+            value: 2
+          })
+        }
+        if (this.freeTime[this.dateIndex][3]) {
+          timeList.push({
+            label: '晚上 20:30-22:00',
+            value: 3
+          })
+        }
+        if (timeList.length === 0) {
+          timeList.push({
+            label: '该日所有时间段均被预约',
+            value: -1
+          })
+        }
+        weui.picker(timeList, {
+          onConfirm: (result) => {
+            if (result[0].value !== -1) {
+              this.time = result[0].label
+            }
+          },
+          id: 'time-picker'
+        })
+      }
     }
   }
 }

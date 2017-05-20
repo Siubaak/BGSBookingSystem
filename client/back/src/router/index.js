@@ -57,7 +57,7 @@ let router = new Router({
 })
 
 router.beforeEach(({ path }, from, next) => {
-  var isLogin = Boolean(store.state.token)
+  let isLogin = Boolean(store.state.token)
   if (!isLogin && path !== '/login') {
     next('/login')
   } else if (isLogin && path === '/login') {

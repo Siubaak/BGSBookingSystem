@@ -79,7 +79,7 @@ module.exports = {
 // 物资申请相关API函数
   createMaterialBook(materialBook, materialBookItems) {
     return (async () => {
-      let materialBooks = await MaterialBooks.find({ userId: materialBook.userId }).exec()
+      let materialBooks = await MaterialBooks.find({ userId: materialBook.userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
       if (materialBooks.length < 4) {
         let materialBookId = (await MaterialBooks.create(materialBook).exec()).insertedIds[0]
         for (let materialBookItem of materialBookItems) {
@@ -88,7 +88,7 @@ module.exports = {
         let result = await MaterialBookItems.create(materialBookItems).exec()
         return Promise.resolve(result)
       } else {
-        return Promise.resolve('预约已满')
+        return Promise.resolve('Full')
       }
     })()
   },
@@ -107,14 +107,13 @@ module.exports = {
   getMaterialBookList(userId) {
     return (async () => {
       let materialBooks = await (() => {
-        switch(userId)
-        {
+        switch (userId) {
           case undefined:
             return MaterialBooks.find().sort({ _id: -1 }).exec()
           case 'back':
-            return MaterialBooks.find({ $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
+            return MaterialBooks.find({ $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id: -1 }).exec()
           default:
-            return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id:-1 }).exec()
+            return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id: -1 }).exec()
         }
       })()
       for (let materialBook of materialBooks) {
@@ -133,46 +132,50 @@ module.exports = {
   },
 // 会议室预约相关API函数
   createMeetingBook(meetingBook) {
-    return MeetingBooks.find({ date: meetingBook.date, time: meetingBook.time, condition: 'book' }).exec()
-      .then((result) => {
-        if (result.length) {
-          return Promise.reject('The meeting room has been booked at that time.')
+    return (async () => {
+      let isBook = await MeetingBooks.findOne({ date: meetingBook.date, time: meetingBook.time, condition: 'book' }).exec()
+      if (isBook.length) {
+        return Promise.resolve('Booked')
+      } else {
+        let meetingBooks = await MeetingBooks.find({ userId: meetingBook.userId, condition: 'book' }).exec()
+        if (meetingBooks.length < 4) {
+          return MeetingBooks.create(meetingBook).exec()
         } else {
-          return Promise.all([
-            Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: 1 } }).exec(),
-            MeetingBooks.create(meetingBook).exec()
-          ])
+          return Promise.resolve('Full')
         }
-      })
-      .catch((err) => {
-        return Promise.reject(err)
-      })
+      }
+    })()
   },
-  updateMeetingBookCondition(meetingBook, condition = 'return') {
-    if (meetingBook.condition !== 'return' && meetingBook.condition !== 'fail' && condition !== 'book') {
-      return Promise.all([
-        Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
-        MeetingBooks.update({ _id: meetingBook._id }, { $set: { conditon: conditon } }).exec()
-      ])
-    } else {
-      return Promise.reject('Changing to the book condition is not allowed or the book has returned/failed')
-    }
+  updateMeetingBookCondition(meetingBookId, condition) {
+    return MeetingBooks.update({ _id: meetingBookId }, { $set: { conditon: conditon } }).exec()
   },
-  removeMeetingBook(meetingBook) {
-    if (meetingBook.condition === 'book') {
-      return Promise.all([
-        Users.update({ _id: meetingBook.userId }, { $inc: { meetingBook: -1 } }).exec(),
-        MeetingBooks.remove({ _id: meetingBook._id }).exec()
-      ])
-    } else {
-      return MeetingBooks.remove({ _id: meetingBook._id }).exec()
-    }
+  removeMeetingBook(meetingBookId) {
+    return MeetingBooks.remove({ _id: meetingBookId }).exec()
   },
-  getMeetingBookList(userId = null) {
-    if (userId) {
-      return MeetingBooks.find({ userId: userId, condition: 'book' }).sort({ _id:-1 }).exec()
-    } else {
-      return MeetingBooks.find().sort({ _id:-1 }).exec()
-    }
+  getMeetingBookList(userId) {
+    return (async () => {
+      let meetingBooks = await (() => {
+        switch (userId) {
+          case undefined:
+            return MeetingBooks.find().sort({ _id: -1 }).exec()
+          case 'back':
+            return MeetingBooks.find({ condition: 'book' }).sort({ _id: -1 }).exec()
+          default:
+            return MeetinglBooks.find({ userId: userId, condition: 'book' }).sort({ _id: -1 }).exec()
+        }
+      })()
+      for (let meetingBook of meetingBooks) {
+        let user = await Users.findOne({ _id: meetingBook.userId }).exec()
+        meetingBook.user = user.department
+      }
+      return Promise.resolve(meetingBooks)
+    })()
+  },
+  getMeetingFreeTimeList() {
+    return (async () => {
+      let meetingBooks = await MeetingBooks.find({ condition: 'book' }).sort({ _id: -1 }).exec()
+      let now = new Date
+      let today = 
+    })
   }
 }
