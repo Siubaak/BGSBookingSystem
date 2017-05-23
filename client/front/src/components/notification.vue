@@ -1,23 +1,29 @@
 <template>
   <div id="notification">
-    <article class="weui-article" v-for="notificationItem in notifications">
-      <h1 class="title">{{ notificationItem.title }}</h1>
-      <p>{{ notificationItem.body }}</p>
+    <article class="weui-article" v-html="markedBody">
     </article>
   </div>
 </template>
 
 <script>
+import api from '../api'
+import marked from 'marked'
 export default {
   data () {
     return {
-      notifications: [
-        {
-          title: '测试',
-          body: '测试'
-        }
-      ]
+      markedBody: ''
     }
+  },
+  methods: {
+    notificationGet () {
+      api.notificationGet()
+        .then((res) => {
+          this.markedBody = marked(res.data.notification.body)
+        })
+    }
+  },
+  created () {
+    this.notificationGet()
   }
 }
 </script>

@@ -18,6 +18,12 @@
           <input class="weui-input" type="number" pattern="[0-9]*" placeholder="请输入手机号" v-model="phone">
         </div>
       </div>
+      <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">会议名称</label></div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="text" placeholder="请输入会议名称" v-model="activity">
+        </div>
+      </div>
     </div>
     <div class="weui-cells__title">借用时间预约选择</div>
     <div class="weui-cells">
@@ -40,7 +46,7 @@
     <div class="weui-cells weui-cells_checkbox">
       <label class="weui-cell weui-check__label" for="projection">
         <div class="weui-cell__hd">
-          <input type="checkbox" class="weui-check" name="checkbox" id="projection">
+          <input type="checkbox" class="weui-check" name="checkbox" id="projection" v-model="isPNeed">
           <i class="weui-icon-checked"></i>
         </div>
         <div class="weui-cell__bd">
@@ -50,12 +56,13 @@
     </div>
     <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式和借用时间，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的会议室，若某个借用时间没有出现在选择列表中，则表明该时间已被预约。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
     <p class="weui-btn-area">
-      <a href="javascript:history.back();" class="weui-btn weui-btn_primary">提交申请</a>
+      <a @click="meetingBookCreate" class="weui-btn weui-btn_primary">提交申请</a>
     </p>
   </div>
 </template>
 
 <script>
+import api from '../api'
 import logmsg from './logmsg'
 import weui from 'weui.js'
 export default {
@@ -67,36 +74,66 @@ export default {
       userId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
       name: '',
       phone: '',
+      activity: '',
       date: '请选择日期',
-      dateIndex: 0,
       time: '请先选择借用日期',
-      freeTime: [
-        [false, true, true, false],
-        [false, true, true, false],
-        [false, true, true, false],
-        [false, true, true, false],
-        [false, false, false, false]
-      ]
+      isPNeed: false,
+      occupiedTime: {}
     }
   },
   methods: {
+    meetingBookCreate () {
+      if (this.name && this.phone && this.activity && this.date !== '请选择日期' && this.time !== '请先选择借用日期' && this.time !== '请选择时间') {
+        let meetingBook = {
+          userId: this.userId,
+          name: this.name,
+          phone: this.phone,
+          activity: this.activity,
+          date: this.date,
+          time: this.time,
+          isPNeed: this.isPNeed,
+          condition: 'book'
+        }
+        let loading = weui.loading('正在提交')
+        api.meetingBookCreate(meetingBook).then((res) => {
+          loading.hide()
+          weui.toast(`${res.data.msg || res.data.err}`, 1500)
+          this.name = ''
+          this.phone = ''
+          this.activity = ''
+          this.date = '请选择日期'
+          this.time = '请先选择借用日期'
+          this.isPNeed = false
+          this.meetingOccupiedTimeGet()
+        }).catch((err) => {
+          loading.hide()
+          weui.alert(`${err}`)
+        })
+      } else {
+        weui.alert('请正确填写信息！')
+      }
+    },
+    meetingOccupiedTimeGet () {
+      api.meetingOccupiedTimeGet()
+        .then((res) => {
+          this.occupiedTime = res.data.occupiedTime
+        })
+    },
     datePick () {
       const now = new Date()
+      const day = ['日', '一', '二', '三', '四', '五', '六']
       let end = new Date()
-      let day = ['日', '一', '二', '三', '四', '五', '六']
       let dateList = []
       for (let i = 0; i !== 5; ++i) {
         end.setTime(now.getTime() + 86400000 * i)
         dateList.push({
-          label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+          label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日（周${day[end.getDay()]}）`,
           value: i
         })
       }
       weui.picker(dateList, {
         onConfirm: (result) => {
           this.date = result[0].label
-          this.dateIndex = result[0].value
-          console.log(this.dateIndex)
           this.time = '请选择时间'
         },
         id: 'date-picker'
@@ -104,26 +141,27 @@ export default {
     },
     timePick () {
       if (this.time !== '请先选择借用日期') {
+        this.meetingOccupiedTimeGet()
         let timeList = []
-        if (this.freeTime[this.dateIndex][0]) {
+        if (!this.occupiedTime[`${this.date}中午 12:30-14:00`]) {
           timeList.push({
             label: '中午 12:30-14:00',
             value: 0
           })
         }
-        if (this.freeTime[this.dateIndex][1]) {
+        if (!this.occupiedTime[`${this.date}下午 17:30-19:00`]) {
           timeList.push({
             label: '下午 17:30-19:00',
             value: 1
           })
         }
-        if (this.freeTime[this.dateIndex][2]) {
+        if (!this.occupiedTime[`${this.date}晚上 19:00-20:30`]) {
           timeList.push({
             label: '晚上 19:00-20:30',
             value: 2
           })
         }
-        if (this.freeTime[this.dateIndex][3]) {
+        if (!this.occupiedTime[`${this.date}晚上 20:30-22:00`]) {
           timeList.push({
             label: '晚上 20:30-22:00',
             value: 3

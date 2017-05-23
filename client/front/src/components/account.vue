@@ -111,24 +111,28 @@
         </div>
       </div>
       <div class="weui-cells__title">我们的物资申请</div>
-      <div class="weui-cells weui-cells_form">
-        <div class="weui-cell">
+      <div class="weui-cells">
+        <a class="weui-cell weui-cell_access" v-for="materialBook in materialBookList">
+          <div class="weui-cell__hd"><label class="weui-label">{{ materialBook.activity }}</label></div>
+          <div class="weui-cell__bd"></div>
+          <div class="weui-cell__ft"></div>
+        </a>
+        <div class="weui-cell" v-show="!materialBookList.length">
           <div class="weui-cell__hd">
-            <label class="weui-label">部门</label>
-          </div>
-          <div class="weui-cell__bd">
-            <label class="weui-label">部门</label>
+            <label class="weui-label">无</label>
           </div>
         </div>
       </div>
       <div class="weui-cells__title">我们的会议室预约</div>
-      <div class="weui-cells weui-cells_form">
-        <div class="weui-cell">
+      <div class="weui-cells">
+        <a class="weui-cell weui-cell_access" v-for="meetingBook in meetingBookList">
+          <div class="weui-cell__hd"><label class="weui-label">{{ meetingBook.activity }}</label></div>
+          <div class="weui-cell__bd"></div>
+          <div class="weui-cell__ft"></div>
+        </a>
+        <div class="weui-cell" v-show="!meetingBookList.length">
           <div class="weui-cell__hd">
-            <label class="weui-label">部门</label>
-          </div>
-          <div class="weui-cell__bd">
-            <label class="weui-label">部门</label>
+            <label class="weui-label">无</label>
           </div>
         </div>
       </div>
@@ -175,7 +179,9 @@ export default {
       },
       newPasswordForCheck: '',
       isInfoEdit: false,
-      isPasswordEdit: false
+      isPasswordEdit: false,
+      materialBookList: [],
+      meetingBookList: []
     }
   },
   methods: {
@@ -239,10 +245,25 @@ export default {
         .then((res) => {
           this.user = res.data.user
         })
+    },
+    materialBookListGet () {
+      api.materialBookListGet({ userId: this.userId })
+        .then((res) => {
+          this.materialBookList = res.data.materialBookList
+        })
+    },
+    meetingBookListGet () {
+      api.meetingBookListGet({ userId: this.userId })
+        .then((res) => {
+          console.log(res.data.meetingBookList)
+          this.meetingBookList = res.data.meetingBookList
+        })
     }
   },
-  beforeMount () {
+  created () {
     this.userGet()
+    this.materialBookListGet()
+    this.meetingBookListGet()
   }
 }
 </script>

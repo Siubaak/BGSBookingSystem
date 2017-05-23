@@ -42,8 +42,8 @@ let MeetingBooks = mongolass.model('MeetingBook', {
       name: { type: 'string' },
       phone: { type: 'string' },
       activity: { type: 'string' },
-      date: { type: 'string' },  //格式YYYY-MM-DD
-      time: { type: 'string' },  //1为中午12:30-14:00，2为下午17:30-19:00
+      date: { type: 'string' },  //格式YYYY年MM月DD日
+      time: { type: 'string' },  //如中午12:30-14:00，下午17:30-19:00
       isPNeed: { type: 'boolean' },  //是否需要投影仪
       condition: { type: 'string', enum: ['book', 'return', 'fail'] }  //book为预约，return为归还，fail为作废
     })

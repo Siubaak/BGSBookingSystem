@@ -12,5 +12,5 @@ let logToken = () => {
   }
 }
 export default {
-  token: logToken() || null
+  token: logToken()
 }

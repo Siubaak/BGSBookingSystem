@@ -101,7 +101,8 @@ export default {
         })
     },
     materialBookCreate () {
-      if (this.name && this.phone && this.activity && this.takeDate !== '请选择日期' && this.returnDate !== '请先选择领取日期' && this.returnDate !== '请选择日期' && this.materialBookItems) {
+      if (this.name && this.phone && this.activity && this.takeDate !== '请选择日期' && this.returnDate !== '请先选择领取日期' && this.returnDate !== '请选择日期' && this.materialBookItems.length) {
+        let loading = weui.loading('正在提交')
         api.materialBookCreate({
           materialBook: {
             userId: this.userId,
@@ -115,9 +116,19 @@ export default {
           },
           materialBookItems: this.materialBookItems
         }).then((res) => {
+          loading.hide()
           weui.toast(`${res.data.msg || res.data.err}`, 1500)
+          this.name = ''
+          this.phone = ''
+          this.activity = ''
+          this.takeDate = '请选择日期'
+          this.returnDate = '请先选择领取日期'
+          this.materialBookItems = []
+          this.materials = []
+          this.materialListGet()
         }).catch((err) => {
-          weui.toast(`${err}`, 1500)
+          loading.hide()
+          weui.alert(`${err}`)
         })
       } else {
         weui.alert('请正确填写信息！')
@@ -125,14 +136,14 @@ export default {
     },
     takeDatePick () {
       const now = new Date()
-      let end = new Date()
       const day = ['日', '一', '二', '三', '四', '五', '六']
+      let end = new Date()
       let dateList = []
       for (let i = 0; i !== 5; ++i) {
         end.setTime(now.getTime() + 86400000 * i)
         if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
           dateList.push({
-            label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+            label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日（周${day[end.getDay()]}）`,
             value: i
           })
         }
@@ -147,19 +158,19 @@ export default {
     },
     returnDatePick () {
       if (this.returnDate !== '请先选择领取日期') {
+        const day = ['日', '一', '二', '三', '四', '五', '六']
         const yearIndex = this.takeDate.indexOf('年')
         const monthIndex = this.takeDate.indexOf('月')
         const dateIndex = this.takeDate.indexOf('日')
         let startDate = new Date()
         startDate.setFullYear(parseInt(this.takeDate.slice(0, yearIndex)), parseInt(this.takeDate.slice(yearIndex + 1, monthIndex) - 1), parseInt(this.takeDate.slice(monthIndex + 1, dateIndex)))
         let end = new Date()
-        const day = ['日', '一', '二', '三', '四', '五', '六']
         let dateList = []
         for (let i = 0; i !== 5; ++i) {
           end.setTime(startDate.getTime() + 86400000 * i)
           if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
             dateList.push({
-              label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日 周${day[end.getDay()]}`,
+              label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日（周${day[end.getDay()]}）`,
               value: i
             })
           }
@@ -204,6 +215,7 @@ export default {
       })
     },
     materialPick () {
+      this.materialListGet()
       let options = []
       if (this.materials.length === this.materialBookItems.length) {
         options.push({
@@ -214,7 +226,7 @@ export default {
         for (let i = 0; i < this.materials.length; ++i) {
           let isSelected = false
           for (let selectedItem of this.materialBookItems) {
-            if (selectedItem.value === i) {
+            if (selectedItem.index === i) {
               isSelected = true
               break
             }
@@ -242,9 +254,6 @@ export default {
         id: 'material-picker'
       })
     }
-  },
-  beforeMount () {
-    this.materialListGet()
   }
 }
 </script>

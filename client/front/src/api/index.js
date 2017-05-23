@@ -21,6 +21,9 @@ export default {
   userUpdatePassword (oUser) {
     return axios.post('/api/user/update/password', oUser)
   },
+  notificationGet () {
+    return axios.get('/api/notification')
+  },
   materialListGet () {
     return axios.get('/api/material/list')
   },
@@ -35,5 +38,8 @@ export default {
   },
   meetingBookListGet (oUserId) {
     return axios.post('/api/meeting/book/list', oUserId)
+  },
+  meetingOccupiedTimeGet () {
+    return axios.get('/api/meeting/book')
   }
 }

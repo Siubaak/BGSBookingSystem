@@ -1,8 +1,11 @@
-var express = require('express'),
-    path = require('path'),
-    app = express(),
-    routes = require('./routes'),
-    bodyParser = require('body-parser')
+let express = require('express')
+let path = require('path')
+let app = express()
+let routes = require('./routes')
+let schedule = require('./schedule')
+let bodyParser = require('body-parser')
+
+schedule.meetingReturnSchedule()
 
 app.use(bodyParser.json())
 app.use((req, res, next) => {
