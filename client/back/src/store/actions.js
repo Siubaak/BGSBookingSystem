@@ -4,12 +4,16 @@ export default {
   adminLogin ({ commit }, oAccountPassword) {
     api.adminLogin(oAccountPassword)
       .then((res) => {
-        if (res.data.token) {
-          commit('ADMIN_LOGIN', res.data.token)
+        if (res.status === 200) {
+          commit('USER_LOGIN', res.data.token)
           router.replace({ path: '/admin' })
         } else {
-          alert(res.data.msg || res.data.err)
+          alert(res.data.msg)
         }
+      })
+      .catch((err) => {
+        console.error(err)
+        alert('登录请求出错，请稍后再试')
       })
   },
   adminLogout ({ commit }) {

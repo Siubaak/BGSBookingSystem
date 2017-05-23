@@ -171,7 +171,6 @@ export default {
       userId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
       user: {},
       userForUpdate: {
-        _id: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
         password: '',
         reName: '',
         rePhone: '',
@@ -207,34 +206,50 @@ export default {
     userUpdatePassword () {
       if (this.userForUpdate.password && this.newPasswordForCheck && this.userForUpdate.passwordForCheck) {
         if (this.userForUpdate.password === this.newPasswordForCheck) {
+          let loading = weui.loading('正在更新密码')
+          this.userForUpdate._id = this.userId
           api.userUpdatePassword({ user: this.userForUpdate })
             .then((res) => {
-              if (res.data.msg === '更新成功') {
-                weui.toast(res.data.msg, 1500)
+              loading.hide()
+              if (res.status === 200) {
+                weui.toast('更新成功', 1500)
                 this.userGet()
                 this.passwordEditClick()
               } else {
-                weui.alert(res.data.msg || res.data.err)
+                weui.alert(res.data.msg)
               }
+            })
+            .catch((err) => {
+              loading.hide()
+              console.error(err)
+              weui.alert('更新出错，请稍后再试')
             })
         } else {
           weui.alert('两次输入的新密码不一致')
         }
       } else {
-        weui.alert('请正确输入密码')
+        weui.alert('请输入密码')
       }
     },
     userUpdateInfo () {
       if (this.userForUpdate.reName && this.userForUpdate.rePhone && this.userForUpdate.passwordForCheck) {
+        let loading = weui.loading('正在更新信息')
+        this.userForUpdate._id = this.userId
         api.userUpdateInfo({ user: this.userForUpdate })
           .then((res) => {
-            if (res.data.msg === '更新成功') {
-              weui.toast(res.data.msg, 1500)
+            loading.hide()
+            if (res.status === 200) {
+              weui.toast('更新成功', 1500)
               this.userGet()
               this.infoEditClick()
             } else {
-              weui.alert(res.data.msg || res.data.err)
+              weui.alert(res.data.msg)
             }
+          })
+          .catch((err) => {
+            loading.hide()
+            console.error(err)
+            weui.alert('更新出错，请稍后再试')
           })
       } else {
         weui.alert('请输入更改信息和密码')
@@ -243,20 +258,45 @@ export default {
     userGet () {
       api.userGet({ userId: this.userId })
         .then((res) => {
-          this.user = res.data.user
+          if (res.status === 200) {
+            this.user = res.data.user
+          } else {
+            weui.alert(`${res.data.msg}`, () => {
+              this.$store.dispatch('logout')
+            })
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          weui.alert('用户信息加载出错，请尝试刷新页面')
         })
     },
     materialBookListGet () {
       api.materialBookListGet({ userId: this.userId })
         .then((res) => {
-          this.materialBookList = res.data.materialBookList
+          if (res.status === 200) {
+            this.materialBookList = res.data.materialBookList
+          } else {
+            this.materialBookList = []
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          weui.alert('用户物资申请列表加载出错，请尝试刷新页面')
         })
     },
     meetingBookListGet () {
       api.meetingBookListGet({ userId: this.userId })
         .then((res) => {
-          console.log(res.data.meetingBookList)
-          this.meetingBookList = res.data.meetingBookList
+          if (res.status === 200) {
+            this.meetingBookList = res.data.meetingBookList
+          } else {
+            this.meetingBookList = []
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          weui.alert('用户会议室预约列表加载出错，请尝试刷新页面')
         })
     }
   },

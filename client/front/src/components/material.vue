@@ -87,19 +87,6 @@ export default {
     }
   },
   methods: {
-    materialListGet () {
-      api.materialListGet()
-        .then((res) => {
-          if (res.data.materialList.length) {
-            this.materials = res.data.materialList
-          } else {
-            this.materials = []
-          }
-        })
-        .catch((err) => {
-          alert(err)
-        })
-    },
     materialBookCreate () {
       if (this.name && this.phone && this.activity && this.takeDate !== '请选择日期' && this.returnDate !== '请先选择领取日期' && this.returnDate !== '请选择日期' && this.materialBookItems.length) {
         let loading = weui.loading('正在提交')
@@ -117,7 +104,7 @@ export default {
           materialBookItems: this.materialBookItems
         }).then((res) => {
           loading.hide()
-          weui.toast(`${res.data.msg || res.data.err}`, 1500)
+          weui.toast('提交成功', 1500)
           this.name = ''
           this.phone = ''
           this.activity = ''
@@ -125,13 +112,13 @@ export default {
           this.returnDate = '请先选择领取日期'
           this.materialBookItems = []
           this.materials = []
-          this.materialListGet()
         }).catch((err) => {
           loading.hide()
-          weui.alert(`${err}`)
+          console.error(err)
+          weui.alert('提交出错，请稍后再试')
         })
       } else {
-        weui.alert('请正确填写信息！')
+        weui.alert('请正确填写信息')
       }
     },
     takeDatePick () {
@@ -215,44 +202,54 @@ export default {
       })
     },
     materialPick () {
-      this.materialListGet()
-      let options = []
-      if (this.materials.length === this.materialBookItems.length) {
-        options.push({
-          label: '无',
-          value: -1
-        })
-      } else {
-        for (let i = 0; i < this.materials.length; ++i) {
-          let isSelected = false
-          for (let selectedItem of this.materialBookItems) {
-            if (selectedItem.index === i) {
-              isSelected = true
-              break
+      let loading = weui.loading('正在加载物资列表')
+      api.materialListGet()
+        .then((res) => {
+          loading.hide()
+          this.materials = res.data.materialList
+          let options = []
+          if (this.materials.length === this.materialBookItems.length) {
+            options.push({
+              label: '无',
+              value: -1
+            })
+          } else {
+            for (let i = 0; i < this.materials.length; ++i) {
+              let isSelected = false
+              for (let selectedItem of this.materialBookItems) {
+                if (selectedItem.index === i) {
+                  isSelected = true
+                  break
+                }
+              }
+              if (!isSelected) {
+                options.push({
+                  label: `${this.materials[i].name}`,
+                  value: i
+                })
+              }
             }
           }
-          if (!isSelected) {
-            options.push({
-              label: `${this.materials[i].name}`,
-              value: i
-            })
-          }
-        }
-      }
-      weui.picker(options, {
-        onConfirm: (result) => {
-          if (result[0].value !== -1) {
-            this.materialBookItems.push({
-              index: result[0].value,
-              userId: this.userId,
-              materialId: this.materials[result[0].value]._id,
-              book: 0,
-              condition: 'book'
-            })
-          }
-        },
-        id: 'material-picker'
-      })
+          weui.picker(options, {
+            onConfirm: (result) => {
+              if (result[0].value !== -1) {
+                this.materialBookItems.push({
+                  index: result[0].value,
+                  userId: this.userId,
+                  materialId: this.materials[result[0].value]._id,
+                  book: 0,
+                  condition: 'book'
+                })
+              }
+            },
+            id: 'material-picker'
+          })
+        })
+        .catch((err) => {
+          loading.hide()
+          console.error(err)
+          weui.alert('物资列表加载失败，请稍后再试')
+        })
     }
   }
 }

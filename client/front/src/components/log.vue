@@ -41,8 +41,6 @@ import weui from 'weui.js'
 export default {
   data () {
     return {
-      userList: [],
-      userListForPick: [],
       user: {
         department: '请选择部门',
         password: ''
@@ -55,32 +53,36 @@ export default {
         this.$store.dispatch('login', this.user)
       }
     },
-    userListGet () {
+    departmentPick () {
+      let loading = weui.loading('正在加载部门列表')
       api.userListGet()
         .then((res) => {
-          if (res.data.userList.length) {
-            this.userListForPick = []
-            this.userList = res.data.userList
-            this.userList.forEach((user, index) => {
-              this.userListForPick.push({
+          loading.hide()
+          if (res.status === 200) {
+            let options = []
+            let userList = res.data.userList
+            userList.forEach((user, index) => {
+              options.push({
                 label: `${user.department}`,
                 value: index
               })
             })
+            weui.picker(options, {
+              onConfirm: (result) => {
+                this.user.department = result[0].label
+              },
+              id: 'material-picker'
+            })
+          } else {
+            weui.alert(res.data.msg)
           }
         })
-    },
-    departmentPick () {
-      weui.picker(this.userListForPick, {
-        onConfirm: (result) => {
-          this.user.department = result[0].label
-        },
-        id: 'material-picker'
-      })
+        .catch((err) => {
+          loading.hide()
+          console.error(err)
+          weui.alert('物资列表加载失败，请稍后再试')
+        })
     }
-  },
-  beforeMount () {
-    this.userListGet()
   }
 }
 </script>

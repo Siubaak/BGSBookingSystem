@@ -252,14 +252,15 @@ export default {
     userListGet () {
       api.userListGet()
         .then((res) => {
-          if (res.data.userList.length) {
+          if (res.status === 200) {
             this.users = res.data.userList
           } else {
             this.users = []
           }
         })
         .catch((err) => {
-          alert(err)
+          console.error(err)
+          alert('用户列表获取出错，请稍后再试')
         })
     }
   },
