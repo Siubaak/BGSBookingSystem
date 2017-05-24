@@ -13,7 +13,8 @@
           <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBook.name }}
           <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
           <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBook.takeDate }}领取，预计{{ materialBook.returnDate }}归还<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预约{{ materialBook.takeDate }}领取<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预计{{ materialBook.returnDate }}归还<br>
           <div v-show="materialBook.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBook.remark }}</div>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
           <label v-for="(bookItem, index) of materialBook.book">
@@ -86,10 +87,10 @@
             </ul>
           </div>
           <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
-            目前状态为：预约
+            状态：预约
           </span>
           <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
-            目前状态为：借出
+            状态：借出
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
@@ -112,23 +113,31 @@ export default {
       if (this.ok === 'bgs') {
         api.materialBookUpdate({ materialBookId }, condition)
           .then((res) => {
-            this.materialBookListGet()
-          })
-          .catch((err) => {
-            alert(err)
+            if (res.status === 200) {
+              this.materialBookListGet()
+            } else {
+              alert(res.data.msg)
+            }
+          }).catch((err) => {
+            console.error(err)
+            alert('物资申请状态更新出错，请稍后再试')
           })
         this.ok = ''
       } else {
-        alert('请输入bgs并点击确认按钮以删除')
+        alert('请输入bgs并点击确认按钮以更新')
       }
     },
     materialBookListGet () {
       api.materialBookListGet()
         .then((res) => {
-          this.materialBooks = res.data.materialBookList
-        })
-        .catch((err) => {
-          alert(err)
+          if (res.status === 200) {
+            this.materialBooks = res.data.materialBookList
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('物资申请列表获取出错，请稍后再试')
         })
     }
   },

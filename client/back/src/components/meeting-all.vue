@@ -4,37 +4,42 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small>
-          会议室预约列表
+          全部会议室预约列表
         </h4>
       </div>
       <ul class="list-group">
-        <li class="list-group-item" v-for="(meetingBookItem, index) in meetingBooks">
-          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ meetingBookItem.user }}
-          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ meetingBookItem.name }}
-          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ meetingBookItem.phone }}<br>
-          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ meetingBookItem.activity }}<br>
-          <small><span class="glyphicon glyphicon-time" aria-hidden="true"></span></small> {{ meetingBookItem.date }} {{ meetingBookItem.time }} 使用<br>
-          <div class="bottom-span"><small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small> {{ meetingBookItem.isPNeed ? '' : '不'}}需要使用投影仪</div>
+        <li class="list-group-item" v-for="(meetingBook, index) in meetingBooks">
+          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ meetingBook.user }}
+          <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ meetingBook.name }}
+          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ meetingBook.phone }}<br>
+          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ meetingBook.activity }}<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ meetingBook.date }}<br>
+          <small><span class="glyphicon glyphicon-time" aria-hidden="true"></span></small> {{ meetingBook.time }}使用 <br>
+          <div class="bottom-span"><small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small> {{ meetingBook.isPNeed ? '' : '不'}}需要使用投影仪</div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              修改
+              删除
             </button>
             <ul class="dropdown-menu">
               <li class="edit-button">
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="meetingBookRemove(meetingBook._id)">确认</button>
                   </span>
                 </div>
               </li>
             </ul>
           </div>
-          <span class="label label-condition"
-            :class="{ 'label-default': meetingBookItem.condition === 'book',
-                      'label-primary': meetingBookItem.condition !== 'book'}">
-            目前状态为：{{ meetingBookItem.condition === 'book' ? '预约' : '归还' }}
+          <span class="label label-condition label-default" v-show="meetingBook.condition === 'book'">
+            状态：预约
+          </span>
+          <span class="label label-condition label-info" v-show="meetingBook.condition === 'return'">
+            状态：归还
+          </span>
+          <span class="label label-condition label-danger" v-show="meetingBook.condition === 'fail'">
+            状态：作废
           </span>
         </li>
         <li class="list-group-item" v-show="!meetingBooks.length">当前没有部门预约会议室</li>
@@ -44,31 +49,49 @@
 </template>
 
 <script>
+import api from '../api'
 export default {
   data () {
     return {
       ok: '',
-      meetingBooks: [{
-        user: '[研会]文娱部',
-        name: '傻逼',
-        phone: '14382940375',
-        activity: '活动申报',
-        date: '2017-05-04',
-        time: '中午12:30-14:00',
-        isPNeed: true,
-        condition: 'book'
-      },
-      {
-        user: '[研会]文娱部',
-        name: '傻逼',
-        phone: '14382940375',
-        activity: '活动申报',
-        date: '2017-05-04',
-        time: '下午17:30-19:00',
-        isPNeed: false,
-        condition: 'book'
-      }]
+      meetingBooks: []
     }
+  },
+  methods: {
+    meetingBookRemove (meetingBookId) {
+      if (this.ok === 'bgs') {
+        api.meetingBookRemove({ meetingBookId })
+          .then((res) => {
+            if (res.status === 200) {
+              this.meetingBookListGetAll()
+            } else {
+              alert(res.data.msg)
+            }
+          }).catch((err) => {
+            console.error(err)
+            alert('会议室预约删除出错，请稍后再试')
+          })
+        this.ok = ''
+      } else {
+        alert('请输入bgs并点击确认按钮以删除')
+      }
+    },
+    meetingBookListGetAll () {
+      api.meetingBookListGetAll()
+        .then((res) => {
+          if (res.status === 200) {
+            this.meetingBooks = res.data.meetingBookList
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('会议室预约列表获取出错，请稍后再试')
+        })
+    }
+  },
+  beforeMount () {
+    this.meetingBookListGetAll()
   }
 }
 </script>

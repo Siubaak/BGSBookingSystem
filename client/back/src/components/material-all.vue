@@ -17,15 +17,15 @@
           <form role="form" @submit.prevent="materialCreate">
             <div class="form-group">
               <label for="name">物资名称（如：桌子、帐篷</label>
-              <input type="text" class="form-control" id="name" placeholder="请输入物资名称" required v-model="material.name"></input>
+              <input type="text" class="form-control" id="name" placeholder="请输入物资名称" required v-model="name"></input>
             </div>
             <div class="form-group">
               <label for="quantity">物资数量（如实填写，若消耗品数量过多，可填较大的数量如10000）</label>
-              <input type="number" class="form-control" id="quantity" placeholder="请输入物资数量" required v-model.number="material.quantity"></input>
+              <input type="number" class="form-control" id="quantity" placeholder="请输入物资数量" required v-model.number="quantity"></input>
             </div>
             <div class="form-group">
               <label for="unit">物资单位（如：张、个、瓶）</label>
-              <input type="text" class="form-control" id="unit" placeholder="请输入物资单位" required v-model="material.unit"></input>
+              <input type="text" class="form-control" id="unit" placeholder="请输入物资单位" required v-model="unit"></input>
             </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
               <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存
@@ -59,7 +59,7 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small>
-          物资申请预约/借出列表
+          全部物资申请预约/借出列表
         </h4>
       </div>
       <ul class="list-group">
@@ -68,7 +68,8 @@
           <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBook.name }}
           <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
           <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ materialBook.takeDate }}领取，预计{{ materialBook.returnDate }}归还<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预约{{ materialBook.takeDate }}领取<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预计{{ materialBook.returnDate }}归还<br>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
           <label v-for="(bookItem, index) of materialBook.book">
             ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book }}{{ bookItem.unit }}&nbsp
@@ -90,16 +91,16 @@
             </ul>
           </div>
           <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
-            目前状态为：预约
+            状态：预约
           </span>
           <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
-            目前状态为：借出
+            状态：借出
           </span>
           <span class="label label-condition label-info" v-show="materialBook.condition === 'return'">
-            目前状态为：归还
+            状态：归还
           </span>
           <span class="label label-condition label-danger" v-show="materialBook.condition === 'fail'">
-            目前状态为：作废
+            状态：作废
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
@@ -114,11 +115,9 @@ export default {
   data () {
     return {
       ok: '',
-      material: {
-        name: '',
-        unit: '',
-        quantity: 1
-      },
+      name: '',
+      unit: '',
+      quantity: 1,
       materials: [],
       materialBooks: []
     }
@@ -126,13 +125,23 @@ export default {
   methods: {
     materialCreate () {
       if (this.material.name && this.material.unit && this.material.quantity) {
-        api.materialCreate(this.material)
+        api.materialCreate({
+          material: {
+            name: this.name,
+            unit: this.unit,
+            quantity: this.quantity
+          }
+        })
           .then((res) => {
-            this.materialListGet()
-            this.materialBookListGetAll()
-          })
-          .catch((err) => {
-            alert(err)
+            if (res.status === 200) {
+              this.materialListGet()
+              this.materialBookListGetAll()
+            } else {
+              alert(res.data.msg)
+            }
+          }).catch((err) => {
+            console.error(err)
+            alert('物资添加出错，请稍后再试')
           })
       }
     },
@@ -140,11 +149,15 @@ export default {
       if (this.ok === 'bgs') {
         api.materialRemove({ materialId })
           .then((res) => {
-            this.materialListGet()
-            this.materialBookListGetAll()
-          })
-          .catch((err) => {
-            alert(err)
+            if (res.status === 200) {
+              this.materialListGet()
+              this.materialBookListGetAll()
+            } else {
+              alert(res.data.msg)
+            }
+          }).catch((err) => {
+            console.error(err)
+            alert('物资删除出错，请稍后再试')
           })
         this.ok = ''
       } else {
@@ -154,21 +167,29 @@ export default {
     materialListGet () {
       api.materialListGet()
         .then((res) => {
-          this.materials = res.data.materialList
-        })
-        .catch((err) => {
-          alert(err)
+          if (res.status === 200) {
+            this.materials = res.data.materialList
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('物资列表获取出错，请稍后再试')
         })
     },
     materialBookRemove (materialBookId) {
       if (this.ok === 'bgs') {
         api.materialBookRemove({ materialBookId })
           .then((res) => {
-            this.materialListGet()
-            this.materialBookListGetAll()
-          })
-          .catch((err) => {
-            alert(err)
+            if (res.status === 200) {
+              this.materialListGet()
+              this.materialBookListGetAll()
+            } else {
+              alert(res.data.msg)
+            }
+          }).catch((err) => {
+            console.error(err)
+            alert('物资申请删除出错，请稍后再试')
           })
         this.ok = ''
       } else {
@@ -178,10 +199,14 @@ export default {
     materialBookListGetAll () {
       api.materialBookListGetAll()
         .then((res) => {
-          this.materialBooks = res.data.materialBookList
-        })
-        .catch((err) => {
-          alert(err)
+          if (res.status === 200) {
+            this.materialBooks = res.data.materialBookList
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('物资申请列表获取出错，请稍后再试')
         })
     }
   },

@@ -66,5 +66,18 @@ export default {
   },
   materialBookListGetAll () {
     return axios.get('/api/admin/material/book/list/all')
+  },
+// 会议室API
+  meetingBookUpdateFail (oMeetingBookId) {
+    return axios.post('/api/admin/meeting/book/update/fail', oMeetingBookId)
+  },
+  meetingBookRemove (params) {
+    return axios.post('/api/admin/meeting/book/remove', params)
+  },
+  meetingBookListGet () {
+    return axios.get('/api/admin/meeting/book/list')
+  },
+  meetingBookListGetAll () {
+    return axios.get('/api/admin/meeting/book/list/all')
   }
 }

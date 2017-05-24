@@ -12,7 +12,7 @@
                 <label class="weui-label">姓名</label>
               </div>
               <div class="weui-cell__bd">
-                <input class="weui-input" type="text" placeholder="请输入部长姓名" v-model="userForUpdate.reName">
+                <input class="weui-input" type="text" placeholder="请输入部长姓名" v-model="reName">
               </div>
             </div>
             <div class="weui-cell">
@@ -20,7 +20,7 @@
                 <label class="weui-label">手机</label>
               </div>
               <div class="weui-cell__bd">
-                <input class="weui-input" type="number" placeholder="请输入部长手机" v-model="userForUpdate.rePhone">
+                <input class="weui-input" type="number" placeholder="请输入部长手机" v-model="rePhone">
               </div>
             </div>
             <div class="weui-cell">
@@ -28,7 +28,7 @@
                 <label class="weui-label">密码</label>
               </div>
               <div class="weui-cell__bd">
-                <input class="weui-input" type="password" placeholder="请输入密码" v-model="userForUpdate.passwordForCheck">
+                <input class="weui-input" type="password" placeholder="请输入密码" v-model="passwordForCheck">
               </div>
             </div>
           </div>
@@ -53,7 +53,7 @@
                 <label class="weui-label">原密码</label>
               </div>
               <div class="weui-cell__bd">
-                <input class="weui-input" type="password" placeholder="请输入原密码" v-model="userForUpdate.passwordForCheck">
+                <input class="weui-input" type="password" placeholder="请输入原密码" v-model="passwordForCheck">
               </div>
             </div>
             <div class="weui-cell">
@@ -61,7 +61,7 @@
                 <label class="weui-label">新密码</label>
               </div>
               <div class="weui-cell__bd">
-                <input class="weui-input" type="password" placeholder="请输入新密码" v-model="userForUpdate.password">
+                <input class="weui-input" type="password" placeholder="请输入新密码" v-model="newPassword">
               </div>
             </div>
             <div class="weui-cell">
@@ -170,12 +170,10 @@ export default {
     return {
       userId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
       user: {},
-      userForUpdate: {
-        password: '',
-        reName: '',
-        rePhone: '',
-        passwordForCheck: ''
-      },
+      reName: '',
+      rePhone: '',
+      passwordForCheck: '',
+      newPassword: '',
       newPasswordForCheck: '',
       isInfoEdit: false,
       isPasswordEdit: false,
@@ -186,44 +184,46 @@ export default {
   methods: {
     infoEditClick () {
       this.isInfoEdit = !this.isInfoEdit
-      this.userForUpdate.password = ''
-      this.userForUpdate.reName = ''
-      this.userForUpdate.rePhone = ''
-      this.userForUpdate.passwordForCheck = ''
+      this.newPassword = ''
+      this.reName = ''
+      this.rePhone = ''
+      this.passwordForCheck = ''
       this.newPasswordForCheck = ''
     },
     passwordEditClick () {
       this.isPasswordEdit = !this.isPasswordEdit
-      this.userForUpdate.password = ''
-      this.userForUpdate.reName = ''
-      this.userForUpdate.rePhone = ''
-      this.userForUpdate.passwordForCheck = ''
+      this.newPassword = ''
+      this.reName = ''
+      this.rePhone = ''
+      this.passwordForCheck = ''
       this.newPasswordForCheck = ''
     },
     logout () {
       this.$store.dispatch('logout')
     },
     userUpdatePassword () {
-      if (this.userForUpdate.password && this.newPasswordForCheck && this.userForUpdate.passwordForCheck) {
-        if (this.userForUpdate.password === this.newPasswordForCheck) {
+      if (this.newPassword && this.newPasswordForCheck && this.passwordForCheck) {
+        if (this.newPassword === this.newPasswordForCheck) {
           let loading = weui.loading('正在更新密码')
-          this.userForUpdate._id = this.userId
-          api.userUpdatePassword({ user: this.userForUpdate })
-            .then((res) => {
-              loading.hide()
-              if (res.status === 200) {
-                weui.toast('更新成功', 1500)
-                this.userGet()
+          api.userUpdatePassword({
+            userId: this.userId,
+            newPassword: this.newPassword,
+            passwordForCheck: this.passwordForCheck
+          }).then((res) => {
+            loading.hide()
+            if (res.status === 200) {
+              weui.alert('更新密码成功，请重新登录', () => {
                 this.passwordEditClick()
-              } else {
-                weui.alert(res.data.msg)
-              }
-            })
-            .catch((err) => {
-              loading.hide()
-              console.error(err)
-              weui.alert('更新出错，请稍后再试')
-            })
+                this.$store.dispatch('logout')
+              })
+            } else {
+              weui.alert(res.data.msg)
+            }
+          }).catch((err) => {
+            loading.hide()
+            console.error(err)
+            weui.alert('更新出错，请稍后再试')
+          })
         } else {
           weui.alert('两次输入的新密码不一致')
         }
@@ -232,25 +232,29 @@ export default {
       }
     },
     userUpdateInfo () {
-      if (this.userForUpdate.reName && this.userForUpdate.rePhone && this.userForUpdate.passwordForCheck) {
+      if (this.reName && this.rePhone && this.passwordForCheck) {
         let loading = weui.loading('正在更新信息')
-        this.userForUpdate._id = this.userId
-        api.userUpdateInfo({ user: this.userForUpdate })
-          .then((res) => {
-            loading.hide()
-            if (res.status === 200) {
-              weui.toast('更新成功', 1500)
-              this.userGet()
-              this.infoEditClick()
-            } else {
-              weui.alert(res.data.msg)
-            }
-          })
-          .catch((err) => {
-            loading.hide()
-            console.error(err)
-            weui.alert('更新出错，请稍后再试')
-          })
+        api.userUpdateInfo({
+          userId: this.userId,
+          reName: this.reName,
+          rePhone: this.rePhone,
+          passwordForCheck: this.passwordForCheck
+        })
+        .then((res) => {
+          loading.hide()
+          if (res.status === 200) {
+            weui.toast('更新信息成功', 1500)
+            this.userGet()
+            this.infoEditClick()
+          } else {
+            weui.alert(res.data.msg)
+          }
+        })
+        .catch((err) => {
+          loading.hide()
+          console.error(err)
+          weui.alert('更新出错，请稍后再试')
+        })
       } else {
         weui.alert('请输入更改信息和密码')
       }

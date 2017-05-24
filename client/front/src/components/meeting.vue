@@ -85,19 +85,20 @@ export default {
     meetingBookCreate () {
       if (this.name && this.phone && this.activity && this.date !== '请选择日期' && this.time !== '请先选择借用日期' && this.time !== '请选择时间') {
         let loading = weui.loading('正在提交')
-        let meetingBook = {
-          userId: this.userId,
-          name: this.name,
-          phone: this.phone,
-          activity: this.activity,
-          date: this.date,
-          time: this.time,
-          isPNeed: this.isPNeed,
-          condition: 'book'
-        }
-        api.meetingBookCreate(meetingBook)
-          .then((res) => {
-            loading.hide()
+        api.meetingBookCreate({
+          meetingBook: {
+            userId: this.userId,
+            name: this.name,
+            phone: this.phone,
+            activity: this.activity,
+            date: this.date,
+            time: this.time,
+            isPNeed: this.isPNeed,
+            condition: 'book'
+          }
+        }).then((res) => {
+          loading.hide()
+          if (res.status === 200) {
             weui.toast('提交成功', 1500)
             this.name = ''
             this.phone = ''
@@ -105,12 +106,14 @@ export default {
             this.date = '请选择日期'
             this.time = '请先选择借用日期'
             this.isPNeed = false
-          })
-          .catch((err) => {
-            loading.hide()
-            console.error(err)
-            weui.alert('提交出错，请稍后再试')
-          })
+          } else {
+            weui.alert(res.data.msg)
+          }
+        }).catch((err) => {
+          loading.hide()
+          console.error(err)
+          weui.alert('提交出错，请稍后再试')
+        })
       } else {
         weui.alert('请正确填写信息')
       }
@@ -141,48 +144,51 @@ export default {
         api.meetingOccupiedTimeGet()
           .then((res) => {
             loading.hide()
-            this.occupiedTime = res.data.occupiedTime
-            let options = []
-            if (!this.occupiedTime[`${this.date}中午 12:30-14:00`]) {
-              options.push({
-                label: '中午 12:30-14:00',
-                value: 0
+            if (res.status === 200) {
+              this.occupiedTime = res.data.occupiedTime
+              let options = []
+              if (!this.occupiedTime[`${this.date}中午 12:30-14:00`]) {
+                options.push({
+                  label: '中午 12:30-14:00',
+                  value: 0
+                })
+              }
+              if (!this.occupiedTime[`${this.date}下午 17:30-19:00`]) {
+                options.push({
+                  label: '下午 17:30-19:00',
+                  value: 1
+                })
+              }
+              if (!this.occupiedTime[`${this.date}晚上 19:00-20:30`]) {
+                options.push({
+                  label: '晚上 19:00-20:30',
+                  value: 2
+                })
+              }
+              if (!this.occupiedTime[`${this.date}晚上 20:30-22:00`]) {
+                options.push({
+                  label: '晚上 20:30-22:00',
+                  value: 3
+                })
+              }
+              if (options.length === 0) {
+                options.push({
+                  label: '该日所有时间段均被预约',
+                  value: -1
+                })
+              }
+              weui.picker(options, {
+                onConfirm: (result) => {
+                  if (result[0].value !== -1) {
+                    this.time = result[0].label
+                  }
+                },
+                id: 'time-picker'
               })
+            } else {
+              weui.alert(res.data.msg)
             }
-            if (!this.occupiedTime[`${this.date}下午 17:30-19:00`]) {
-              options.push({
-                label: '下午 17:30-19:00',
-                value: 1
-              })
-            }
-            if (!this.occupiedTime[`${this.date}晚上 19:00-20:30`]) {
-              options.push({
-                label: '晚上 19:00-20:30',
-                value: 2
-              })
-            }
-            if (!this.occupiedTime[`${this.date}晚上 20:30-22:00`]) {
-              options.push({
-                label: '晚上 20:30-22:00',
-                value: 3
-              })
-            }
-            if (options.length === 0) {
-              options.push({
-                label: '该日所有时间段均被预约',
-                value: -1
-              })
-            }
-            weui.picker(options, {
-              onConfirm: (result) => {
-                if (result[0].value !== -1) {
-                  this.time = result[0].label
-                }
-              },
-              id: 'time-picker'
-            })
-          })
-          .catch((err) => {
+          }).catch((err) => {
             loading.hide()
             console.error(err)
             weui.alert('会议室空闲时间获取出错，请稍后再试')

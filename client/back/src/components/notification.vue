@@ -18,7 +18,7 @@
             <div class="form-group">
               <label for="notification">编辑器支持markdown语法，规则详见<a target="_blank" href="http://www.jianshu.com/p/q81RER">这里</a>。</label>
               <textarea type="text" class="form-control" id="notification"
-                        rows="5" v-model="notification.body"
+                        rows="5" v-model="body"
                         @input="notificationPreview">
               </textarea>
             </div>
@@ -44,9 +44,7 @@ export default {
   data () {
     return {
       markedBody: '',
-      notification: {
-        body: ''
-      },
+      body: '',
       waitingPreview: false
     }
   },
@@ -55,7 +53,7 @@ export default {
       if (!this.waitingPreview) {
         this.waitingPreview = true
         setTimeout(() => {
-          this.markedBody = marked(this.notification.body)
+          this.markedBody = marked(this.body)
           this.waitingPreview = false
         }, 1000)
       }
@@ -63,21 +61,32 @@ export default {
     notificationGet () {
       api.notificationGet()
         .then((res) => {
-          this.notification = res.data.notification
-          this.markedBody = marked(this.notification.body)
-        })
-        .catch((err) => {
-          alert(err)
+          if (res.status === 200) {
+            this.body = res.data.notification.body
+            this.markedBody = marked(this.body)
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('通知公告获取出错，请稍后再试')
         })
     },
     notificationUpdate () {
-      api.notificationUpdate(this.notification)
-        .then((res) => {
-          this.markedBody = marked(this.notification.body)
-        })
-        .catch((err) => {
-          alert(err)
-        })
+      api.notificationUpdate({
+        notification: {
+          body: this.body
+        }
+      }).then((res) => {
+        if (res.status === 200) {
+          this.markedBody = marked(this.body)
+        } else {
+          alert(res.data.msg)
+        }
+      }).catch((err) => {
+        console.error(err)
+        alert('通知公告更新出错，请稍后再试')
+      })
     }
   },
   beforeMount () {

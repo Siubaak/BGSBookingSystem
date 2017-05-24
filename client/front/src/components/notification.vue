@@ -19,9 +19,12 @@ export default {
     notificationGet () {
       api.notificationGet()
         .then((res) => {
-          this.markedBody = marked(res.data.notification.body)
-        })
-        .catch((err) => {
+          if (res.status === 200) {
+            this.markedBody = marked(res.data.notification.body)
+          } else {
+            weui.alert(res.data.msg)
+          }
+        }).catch((err) => {
           console.error(err)
           weui.alert('通知公告加载出错，请尝试刷新页面')
         })

@@ -2,11 +2,14 @@ let { Admins, Users, Notifications, Materials, MaterialBooks, MaterialBookItems,
 
 module.exports = {
 // 用户相关API函数
-  getAdmin(account) {
+  getAdminByAccount(account) {
     return Admins.findOne({ account: account }).exec()
   },
+  getAdminById(adminId) {
+    return Admins.findOne({ _id: adminId }).exec()
+  },
   updateAdmin(admin) {
-    return Admins.update({ password: admin.oldPassword }, { $set: admin }).exec()
+    return Admins.update({ _id: admin._id }, { $set: admin }).exec()
   },
   createUser(user) {
     return Users.create(user).exec()
@@ -141,7 +144,7 @@ module.exports = {
     })()
   },
   updateMeetingBookCondition(meetingBookId, condition) {
-    return MeetingBooks.update({ _id: meetingBookId }, { $set: { conditon: conditon } }).exec()
+    return MeetingBooks.update({ _id: meetingBookId }, { $set: { condition: condition } }).exec()
   },
   removeMeetingBook(meetingBookId) {
     return MeetingBooks.remove({ _id: meetingBookId }).exec()

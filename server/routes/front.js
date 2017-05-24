@@ -21,9 +21,10 @@ router.post('/login', async (req, res) => {
         res.status(299).send({ code: 'auth:bad_password', msg: '密码错误' })
       }
     } else {
-      res.status(299).send({ code: 'auth:user_not_found', msg: '用户不存在，或被后台删除' })
+      res.status(299).send({ code: 'data:user_not_found', msg: '用户不存在，已被后台删除' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -38,9 +39,10 @@ router.post('/user', async (req, res) => {
       user.password = undefined
       res.status(200).send({ user })
     } else {
-      res.status(299).send({ code: 'auth:user_not_found', msg: '用户不存在，或被后台删除' })
+      res.status(299).send({ code: 'data:user_not_found', msg: '用户不存在，已被后台删除' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -61,58 +63,61 @@ router.get('/user/list', async (req, res) => {
       }
       res.status(200).send({ userList })
     } else {
-      res.status(299).send({ code: 'auth:no_user_exist', msg: '无用户数据，请等待后台添加' })
+      res.status(299).send({ code: 'data:no_user_exist', msg: '无用户数据，请等待后台添加' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 前台更新用户信息
 router.post('/user/update/info', tokenCheck, async (req, res) => {
-  let { user } = req.body
+  let { userId, reName, rePhone, passwordForCheck } = req.body
   let userForUpdate = {
-    _id: user._id,
-    reName: user.reName,
-    rePhone: user.rePhone
+    _id: userId,
+    reName: reName,
+    rePhone: rePhone
   }
   try {
-    let userForCheck = await api.getUserById(user._id)
+    let userForCheck = await api.getUserById(userId)
     if (userForCheck) {
-      if (sha1(user.passwordForCheck) === userForCheck.password) {
+      if (sha1(passwordForCheck) === userForCheck.password) {
         await api.updateUser(userForUpdate)
         res.status(200).end()
       } else {
         res.status(299).send({ code: 'auth:bad_password', msg: '原密码错误' })
       }
     } else {
-      res.status(299).send({ code: 'auth:user_not_found', msg: '用户不存在，或被后台删除' })
+      res.status(299).send({ code: 'data:user_not_found', msg: '用户不存在，已被后台删除' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 前台更新用户密码
 router.post('/user/update/password', tokenCheck, async (req, res) => {
-  let { user } = req.body
+  let { userId, newPassword, passwordForCheck } = req.body
   let userForUpdate = {
-    _id: user._id,
-    password: sha1(user.password)
+    _id: userId,
+    password: sha1(newPassword)
   }
   try {
-    let userForCheck = await api.getUserById(user._id)
+    let userForCheck = await api.getUserById(userId)
     if (userForCheck) {
-      if (sha1(user.passwordForCheck) === userForCheck.password) {
+      if (sha1(passwordForCheck) === userForCheck.password) {
         await api.updateUser(userForUpdate)
         res.status(200).end()
       } else {
         res.status(299).send({ code: 'auth:bad_password', msg: '原密码错误' })
       }
     } else {
-      res.status(299).send({ code: 'auth:user_not_found', msg: '用户不存在，或被后台删除' })
+      res.status(299).send({ code: 'data:user_not_found', msg: '用户不存在，已被后台删除' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -123,6 +128,7 @@ router.get('/notification', tokenCheck, async (req, res) => {
     let notification = await api.getNotification()
     res.status(200).send({ notification })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -134,9 +140,10 @@ router.get('/material/list', tokenCheck, async (req, res) => {
     if (materialList.length) {
       res.status(200).send({ materialList })
     } else {
-      res.status(299).send({ code: 'auth:no_material', msg: '无物资数据，请等待后台添加' })
+      res.status(299).send({ code: 'data:no_material', msg: '无物资数据，请等待后台添加' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -148,6 +155,7 @@ router.post('/material/book/create', tokenCheck, async (req, res) => {
     await api.createMaterialBook(materialBook, materialBookItems)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -160,20 +168,22 @@ router.post('/material/book/list', tokenCheck, async (req, res) => {
     if (materialBookList.length) {
       res.status(200).send({ materialBookList })
     } else {
-      res.status(299).send({ code: 'auth:no_active_material_book_list', msg: '该用户无未处理的有效物资申请' })
+      res.status(299).send({ code: 'data:no_active_material_book_list', msg: '该用户无未处理的有效物资申请' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 前台创建会议室预约表单
 router.post('/meeting/book/create', tokenCheck, async (req, res) => {
-  let meetingBook = req.body
+  let { meetingBook } = req.body
   try {
     await api.createMeetingBook(meetingBook)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -186,9 +196,10 @@ router.post('/meeting/book/list', tokenCheck, async (req, res) => {
     if (meetingBookList.length) {
       res.status(200).send({ meetingBookList })
     } else {
-      res.status(299).send({ code: 'auth:no_active_meeting_book_list', msg: '该用户无未处理的有效会议室预约' })
+      res.status(299).send({ code: 'data:no_active_meeting_book_list', msg: '该用户无未处理的有效会议室预约' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -199,6 +210,7 @@ router.get('/meeting/book', tokenCheck, async (req, res) => {
     let occupiedTime = await api.getMeetingOccupiedTime()
     res.status(200).send({ occupiedTime })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })

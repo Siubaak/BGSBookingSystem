@@ -104,14 +104,18 @@ export default {
           materialBookItems: this.materialBookItems
         }).then((res) => {
           loading.hide()
-          weui.toast('提交成功', 1500)
-          this.name = ''
-          this.phone = ''
-          this.activity = ''
-          this.takeDate = '请选择日期'
-          this.returnDate = '请先选择领取日期'
-          this.materialBookItems = []
-          this.materials = []
+          if (res.status === 200) {
+            weui.toast('提交成功', 1500)
+            this.name = ''
+            this.phone = ''
+            this.activity = ''
+            this.takeDate = '请选择日期'
+            this.returnDate = '请先选择领取日期'
+            this.materialBookItems = []
+            this.materials = []
+          } else {
+            weui.alert(res.data.msg)
+          }
         }).catch((err) => {
           loading.hide()
           console.error(err)
@@ -206,44 +210,48 @@ export default {
       api.materialListGet()
         .then((res) => {
           loading.hide()
-          this.materials = res.data.materialList
-          let options = []
-          if (this.materials.length === this.materialBookItems.length) {
-            options.push({
-              label: '无',
-              value: -1
-            })
-          } else {
-            for (let i = 0; i < this.materials.length; ++i) {
-              let isSelected = false
-              for (let selectedItem of this.materialBookItems) {
-                if (selectedItem.index === i) {
-                  isSelected = true
-                  break
+          if (res.status === 200) {
+            this.materials = res.data.materialList
+            let options = []
+            if (this.materials.length === this.materialBookItems.length) {
+              options.push({
+                label: '无',
+                value: -1
+              })
+            } else {
+              for (let i = 0; i < this.materials.length; ++i) {
+                let isSelected = false
+                for (let selectedItem of this.materialBookItems) {
+                  if (selectedItem.index === i) {
+                    isSelected = true
+                    break
+                  }
+                }
+                if (!isSelected) {
+                  options.push({
+                    label: `${this.materials[i].name}`,
+                    value: i
+                  })
                 }
               }
-              if (!isSelected) {
-                options.push({
-                  label: `${this.materials[i].name}`,
-                  value: i
-                })
-              }
             }
+            weui.picker(options, {
+              onConfirm: (result) => {
+                if (result[0].value !== -1) {
+                  this.materialBookItems.push({
+                    index: result[0].value,
+                    userId: this.userId,
+                    materialId: this.materials[result[0].value]._id,
+                    book: 0,
+                    condition: 'book'
+                  })
+                }
+              },
+              id: 'material-picker'
+            })
+          } else {
+            weui.alert(res.data.msg)
           }
-          weui.picker(options, {
-            onConfirm: (result) => {
-              if (result[0].value !== -1) {
-                this.materialBookItems.push({
-                  index: result[0].value,
-                  userId: this.userId,
-                  materialId: this.materials[result[0].value]._id,
-                  book: 0,
-                  condition: 'book'
-                })
-              }
-            },
-            id: 'material-picker'
-          })
         })
         .catch((err) => {
           loading.hide()

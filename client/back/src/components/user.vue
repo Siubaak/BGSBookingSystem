@@ -17,12 +17,12 @@
           <form role="form" @submit.prevent="adminUpdate">
             <div class="form-group">
               <label for="password">原密码</label>
-              <input type="password" class="form-control" id="password" placeholder="请输入原密码" required v-model="oldPassword"></input>
+              <input type="password" class="form-control" id="password" placeholder="请输入原密码" required v-model="passwordForCheck"></input>
             </div>
             <div class="form-group">
               <label for="password">新密码</label>
               <input type="password" class="form-control bottom-span" id="password" placeholder="请输入新密码" required v-model="newPassword"></input>
-              <input type="password" class="form-control" id="password" placeholder="请再次输入新密码" required v-model="newPassword2"></input>
+              <input type="password" class="form-control" id="password" placeholder="请再次输入新密码" required v-model="newPasswordForCheck"></input>
             </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
               <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存修改
@@ -132,7 +132,7 @@
           <span class="label label-condition"
             :class="{ 'label-primary': userItem.isAuth,
                       'label-info': !userItem.isAuth }">
-            目前状态为：{{ userItem.isAuth ? '授权' : '未授权' }}
+            状态：{{ userItem.isAuth ? '授权' : '未授权' }}
           </span>
         </li>
         <li class="list-group-item" v-show="!users.length">没有部门账号</li>
@@ -147,49 +147,52 @@ export default {
   data () {
     return {
       ok: '',
-      oldPassword: '',
+      adminId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
+      passwordForCheck: '',
       newPassword: '',
-      newPassword2: '',
+      newPasswordForCheck: '',
       department: '',
       users: []
     }
   },
   methods: {
     adminUpdate () {
-      if (this.newPassword && this.newPassword2) {
-        if (this.newPassword === this.newPassword2) {
+      if (this.newPassword && this.newPasswordForCheck && this.passwordForCheck) {
+        if (this.newPassword === this.newPasswordForCheck) {
           api.adminUpdate({
-            password: this.newPassword,
-            oldPassword: this.oldPassword
+            adminId: this.adminId,
+            newPassword: this.newPassword,
+            passwordForCheck: this.passwordForCheck
           }).then((res) => {
-            if (res.data.msg === '修改密码成功') {
-              alert(res.data.msg + '，请重新登录。')
+            if (res.status === 200) {
+              alert('更新管理员密码成功，请重新登录。')
               this.$store.dispatch('adminLogout')
             } else {
               alert(res.data.msg)
             }
           }).catch((err) => {
-            alert(err)
+            console.error(err)
+            alert('更新出错，请稍后再试')
           })
         } else {
-          alert('两次输入的新密码不一致！')
+          alert('两次输入的新密码不一致')
         }
       } else {
-        alert('请输入新密码！')
+        alert('请输入密码')
       }
     },
     userCreate () {
       if (this.department) {
         api.userCreate({ department: this.department })
           .then((res) => {
-            if (res.data.msg) {
+            if (res.status === 200) {
               this.userListGet()
             } else {
-              alert('创建失败')
+              alert(res.data.msg)
             }
-          })
-          .catch((err) => {
-            alert(err)
+          }).catch((err) => {
+            console.error(err)
+            alert('创建出错，请稍后再试')
           })
       } else {
         alert('请输入部门名称')
@@ -199,14 +202,14 @@ export default {
       if (this.ok === 'bgs') {
         api.userRemove({ userId })
           .then((res) => {
-            if (res.data.msg) {
+            if (res.status === 200) {
               this.userListGet()
             } else {
-              alert('删除失败')
+              alert(res.data.msg)
             }
-          })
-          .catch((err) => {
-            alert(err)
+          }).catch((err) => {
+            console.error(err)
+            alert('删除出错，请稍后再试')
           })
         this.ok = ''
       } else {
@@ -215,38 +218,38 @@ export default {
     },
     userAuth (user) {
       if (this.ok === 'bgs') {
-        api.userAuth(user)
+        api.userAuth({ user })
           .then((res) => {
-            if (res.data.msg) {
+            if (res.status === 200) {
               this.userListGet()
             } else {
-              alert('授权失败')
+              alert(res.data.msg)
             }
-          })
-          .catch((err) => {
-            alert(err)
+          }).catch((err) => {
+            console.error(err)
+            alert('授权出错，请稍后再试')
           })
         this.ok = ''
       } else {
-        alert('请输入bgs并点击确认按钮以删除')
+        alert('请输入bgs并点击确认按钮以授权')
       }
     },
     userReset (user) {
       if (this.ok === 'bgs') {
-        api.userReset(user)
+        api.userReset({ user })
           .then((res) => {
-            if (res.data.msg) {
+            if (res.status === 200) {
               this.userListGet()
             } else {
-              alert('重置失败')
+              alert(res.data.msg)
             }
-          })
-          .catch((err) => {
-            alert(err)
+          }).catch((err) => {
+            console.error(err)
+            alert('重置出错，请稍后再试')
           })
         this.ok = ''
       } else {
-        alert('请输入bgs并点击确认按钮以删除')
+        alert('请输入bgs并点击确认按钮以重置')
       }
     },
     userListGet () {
@@ -257,8 +260,7 @@ export default {
           } else {
             this.users = []
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           console.error(err)
           alert('用户列表获取出错，请稍后再试')
         })

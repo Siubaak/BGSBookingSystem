@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
     let decoded = jwt.decode(token, process.env.JWT_SECRET)
     let user = await Users.findOne({ _id: decoded.id }).exec()
     if (token && user && decoded.exp <= Date.now()/1000) {
-      res.send({ msg: '授权已过期，请重新登陆' })
+      res.status(299).send({ code: 'auth:auth_expire', msg: '授权已过期，请重新登陆' })
     }
   }
   next()

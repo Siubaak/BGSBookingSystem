@@ -3,7 +3,6 @@ let mongolass = new Mongolass('mongodb://127.0.0.1:27017/bgs')
 let Admins = mongolass.model('Admin', {
       account: { type: 'string' },
       password: { type: 'string' },
-      oldPassword: { type: 'string' }
     })
 let Users = mongolass.model('User', {
       department: { type: 'string'},

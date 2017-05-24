@@ -6,8 +6,8 @@ if (localStorage.getItem('jwt')) {
 
 export default {
 // 登录API
-  login (oDepartmentPassword) {
-    return axios.post('/api/login', oDepartmentPassword)
+  login (oDepartmentnPassword) {
+    return axios.post('/api/login', oDepartmentnPassword)
   },
   userGet (oUserId) {
     return axios.post('/api/user', oUserId)
@@ -15,11 +15,11 @@ export default {
   userListGet () {
     return axios.get('/api/user/list')
   },
-  userUpdateInfo (oUser) {
-    return axios.post('/api/user/update/info', oUser)
+  userUpdateInfo (oUserIdnReNamenRePhonenPasswordForCheck) {
+    return axios.post('/api/user/update/info', oUserIdnReNamenRePhonenPasswordForCheck)
   },
-  userUpdatePassword (oUser) {
-    return axios.post('/api/user/update/password', oUser)
+  userUpdatePassword (oUserIdnNewPasswordnPasswordForCheck) {
+    return axios.post('/api/user/update/password', oUserIdnNewPasswordnPasswordForCheck)
   },
   notificationGet () {
     return axios.get('/api/notification')
@@ -27,8 +27,8 @@ export default {
   materialListGet () {
     return axios.get('/api/material/list')
   },
-  materialBookCreate (oMaterialBook) {
-    return axios.post('/api/material/book/create', oMaterialBook)
+  materialBookCreate (oMaterialBooknMaterialBookItems) {
+    return axios.post('/api/material/book/create', oMaterialBooknMaterialBookItems)
   },
   materialBookListGet (oUserId) {
     return axios.post('/api/material/book/list', oUserId)

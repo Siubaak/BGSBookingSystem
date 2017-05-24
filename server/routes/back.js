@@ -13,7 +13,7 @@ dotenv.load()
 router.post('/admin/login', async (req, res) => {
   let { account, password } = req.body
   try {
-    let admin = await api.getAdmin(account)
+    let admin = await api.getAdminByAccount(account)
     if (admin) {
       if (sha1(password) === admin.password) {
         res.status(200).send({ token: tokenCreate(admin) })
@@ -24,23 +24,32 @@ router.post('/admin/login', async (req, res) => {
       res.status(299).send({ code: 'auth:user_not_found', msg: '用户名不存在' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台更新管理员密码
 router.post('/admin/update/password', tokenCheck, async (req, res) => {
-  let admin = req.body
-  admin.password = sha1(admin.password)
-  admin.oldPassword = sha1(admin.oldPassword)
+  let { adminId, newPassword, passwordForCheck} = req.body
+  let adminForUpdate = {
+    _id: adminId,
+    password: sha1(newPassword)
+  }
   try {
-    let result = await api.updateAdmin(admin)
-    if (result.result.n) {
-      res.status(200).end()
+    let adminForCheck = await api.getAdminById(adminId)
+    if (adminForCheck) {
+      if (sha1(passwordForCheck) === adminForCheck.password) {
+        await api.updateAdmin(adminForUpdate)
+        res.status(200).end()
+      } else {
+        res.status(299).send({ code: 'auth:bad_password', msg: '原密码错误' })
+      }
     } else {
-      res.status(299).send({ code: 'auth:bad_password', msg: '原密码错误' })
+      res.status(299).send({ code: 'data:user_not_found', msg: '管理员不存在，已被删除' })
     }
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -61,25 +70,27 @@ router.post('/admin/user/create', tokenCheck, async (req, res) => {
     await api.createUser(user)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台更新部门用户授权
 router.post('/admin/user/update/auth', tokenCheck, async (req, res) => {
-  let user = req.body
+  let { user } = req.body
   user.isAuth = !user.isAuth
   try {
     await api.updateUser(user)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台重置部门用户
 router.post('/admin/user/update/reset', tokenCheck, async (req, res) => {
-  let user = req.body
+  let { user } = req.body
   user.password = sha1('123456')
   user.isAuth = false
   user.reName = ''
@@ -88,6 +99,7 @@ router.post('/admin/user/update/reset', tokenCheck, async (req, res) => {
     await api.updateUser(user)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -99,6 +111,7 @@ router.post('/admin/user/remove', tokenCheck, async (req, res) => {
     await api.removeUser(userId)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -109,6 +122,7 @@ router.get('/admin/user/list', tokenCheck, async (req, res) => {
     let userList = await api.getUserList()
     res.status(200).send({ userList })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -119,39 +133,43 @@ router.get('/admin/notification', tokenCheck, async (req, res) => {
     let notification = await api.getNotification()
     res.status(200).send({ notification })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台编辑通知公告
 router.post('/admin/notification/update', tokenCheck, async (req, res) => {
-  let notification = req.body
+  let { notification } = req.body
   try {
     await api.updateNotification(notification)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台创建物资
 router.post('/admin/material/create', tokenCheck, async (req, res) => {
-  let material = req.body
+  let { material } = req.body
   try {
     await api.createMaterial(material)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
 
 // 后台更新物资
 router.post('/admin/material/update', tokenCheck, async (req, res) => {
-  let material = req.body
+  let { material } = req.body
   try {
     await api.updateMaterial(material)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -163,6 +181,7 @@ router.post('/admin/material/remove', tokenCheck, async (req, res) => {
     await api.removeMaterial(materialId)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -173,6 +192,7 @@ router.get('/admin/material/list', tokenCheck, async (req, res) => {
     let materialList = await api.getMaterialList(true)
     res.status(200).send({ materialList })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -184,6 +204,7 @@ router.post('/admin/material/book/update/lend', tokenCheck, async (req, res) => 
     await api.updateMaterialBookCondition(materialBookId, 'lend')
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -195,6 +216,7 @@ router.post('/admin/material/book/update/return', tokenCheck, async (req, res) =
     await api.updateMaterialBookCondition(materialBookId, 'return')
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -206,6 +228,7 @@ router.post('/admin/material/book/update/fail', tokenCheck, async (req, res) => 
     await api.updateMaterialBookCondition(materialBookId, 'fail')
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -217,6 +240,7 @@ router.post('/admin/material/book/remove', tokenCheck, async (req, res) => {
     await api.removeMaterialBook(materialBookId)
     res.status(200).end()
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -227,6 +251,7 @@ router.get('/admin/material/book/list', tokenCheck, async (req, res) => {
     let materialBookList = await api.getMaterialBookList('back')
     res.status(200).send({ materialBookList })
   } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })
@@ -237,6 +262,53 @@ router.get('/admin/material/book/list/all', tokenCheck, async (req, res) => {
     let materialBookList = await api.getMaterialBookList()
     res.status(200).send({ materialBookList })
   } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台更新会议室预约状态，更改为作废状态
+router.post('/admin/meeting/book/update/fail', tokenCheck, async (req, res) => {
+  let { meetingBookId } = req.body
+  try {
+    await api.updateMeetingBookCondition(meetingBookId, 'fail')
+    res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台删除会议室预约
+router.post('/admin/meeting/book/remove', tokenCheck, async (req, res) => {
+  let { meetingBookId } = req.body
+  try {
+    await api.removeMeetingBook(meetingBookId)
+    res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台获取所有未处理会议室预约列表
+router.get('/admin/meeting/book/list', tokenCheck, async (req, res) => {
+  try {
+    let meetingBookList = await api.getMeetingBookList('back')
+    res.status(200).send({ meetingBookList })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台获取所有会议室预约列表
+router.get('/admin/meeting/book/list/all', tokenCheck, async (req, res) => {
+  try {
+    let meetingBookList = await api.getMeetingBookList()
+    res.status(200).send({ meetingBookList })
+  } catch (err) {
+    console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
   }
 })

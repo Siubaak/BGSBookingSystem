@@ -5,7 +5,7 @@ export default {
     api.adminLogin(oAccountPassword)
       .then((res) => {
         if (res.status === 200) {
-          commit('USER_LOGIN', res.data.token)
+          commit('ADMIN_LOGIN', res.data.token)
           router.replace({ path: '/admin' })
         } else {
           alert(res.data.msg)
