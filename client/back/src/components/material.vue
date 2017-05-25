@@ -14,11 +14,11 @@
           <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
           <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
           <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预约{{ materialBook.takeDate }}领取<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预计{{ materialBook.returnDate }}归还<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 计划{{ materialBook.returnDate }}归还<br>
           <div v-show="materialBook.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBook.remark }}</div>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
-          <label v-for="(bookItem, index) of materialBook.book">
-            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book }}{{ bookItem.unit }}&nbsp
+          <label v-for="(book, index) of materialBook.book">
+            ({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp
           </label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
@@ -31,7 +31,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-primary" type="button" @click="materialBookUpdate(materialBook._id, 'lend')">确认</button>
+                    <button class="btn btn-sm btn-primary" type="button" @click="materialBookUpdateCondition(materialBook._id, 'lend')">确认</button>
                   </span>
                 </div>
               </li>
@@ -48,7 +48,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-info" type="button" @click="materialBookUpdate(materialBook._id, 'return')">确认</button>
+                    <button class="btn btn-sm btn-info" type="button" @click="materialBookUpdateCondition(materialBook._id, 'return')">确认</button>
                   </span>
                 </div>
               </li>
@@ -64,23 +64,23 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdate(materialBook._id, 'fail')">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdateCondition(materialBook._id, 'fail')">确认</button>
                   </span>
                 </div>
               </li>
             </ul>
           </div>
           <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-default dropdown-toggle"
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" @click="materialBookListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               备注
             </button>
             <ul class="dropdown-menu">
               <li class="edit-button">
                 <div class="input-group">
-                  <input v-model="materialBook.remark" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
+                  <input v-model="materialBook.remark" type="text" class="form-control input-sm">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdateRemark(materialBook)">确认</button>
                   </span>
                 </div>
               </li>
@@ -109,9 +109,22 @@ export default {
     }
   },
   methods: {
-    materialBookUpdate (materialBookId, condition) {
+    materialBookUpdateRemark (materialBook) {
+      api.materialBookUpdateRemark({ materialBookId: materialBook._id, remark: materialBook.remark })
+        .then((res) => {
+          if (res.status === 200) {
+            this.materialBookListGet()
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('物资申请备注修改出错，请稍后再试')
+        })
+    },
+    materialBookUpdateCondition (materialBookId, condition) {
       if (this.ok === 'bgs') {
-        api.materialBookUpdate({ materialBookId }, condition)
+        api.materialBookUpdateCondition({ materialBookId }, condition)
           .then((res) => {
             if (res.status === 200) {
               this.materialBookListGet()

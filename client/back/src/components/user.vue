@@ -60,8 +60,8 @@
         <li class="list-group-item" v-for="(userItem, index) in users">
           <div class="bottom-span">
             <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ userItem.department }}
-            <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ userItem.reName }}
-            <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ userItem.rePhone }}
+            <small v-show="userItem.reName"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ userItem.reName }}
+            <small v-show="userItem.rePhone"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ userItem.rePhone }}
           </div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle"

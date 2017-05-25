@@ -34,7 +34,7 @@
           :class="{ 'weui-tabbar__item': true, 'weui-bar__item_on': item4Selected }"
           @click.native="item4Click">
           <img src="../assets/img/account.png" alt="" class="weui-tabbar__icon">
-          <p class="weui-tabbar__label">我的账号</p>
+          <p class="weui-tabbar__label">部门账号</p>
         </router-link>
       </div>
     </div>

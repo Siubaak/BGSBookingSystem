@@ -1,45 +1,63 @@
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
-if (localStorage.getItem('jwt')) {
-  axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt').replace(/(^\\")|(\\"$)/g, '')
+let insertToken = () => {
+  if (localStorage.getItem('jwtf')) {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwtf').replace(/(^\\")|(\\"$)/g, '')
+  }
 }
 
 export default {
 // 登录API
-  login (oDepartmentnPassword) {
-    return axios.post('/api/login', oDepartmentnPassword)
+  login (params) {
+    return axios.post('/api/login', params)
   },
-  userGet (oUserId) {
-    return axios.post('/api/user', oUserId)
+  userInfoGet (params) {
+    return axios.post('/api/user/info', params)
   },
   userListGet () {
     return axios.get('/api/user/list')
   },
-  userUpdateInfo (oUserIdnReNamenRePhonenPasswordForCheck) {
-    return axios.post('/api/user/update/info', oUserIdnReNamenRePhonenPasswordForCheck)
+  userUpdateInfo (params) {
+    insertToken()
+    return axios.post('/api/user/update/info', params)
   },
-  userUpdatePassword (oUserIdnNewPasswordnPasswordForCheck) {
-    return axios.post('/api/user/update/password', oUserIdnNewPasswordnPasswordForCheck)
+  userUpdatePassword (params) {
+    insertToken()
+    return axios.post('/api/user/update/password', params)
   },
   notificationGet () {
     return axios.get('/api/notification')
   },
   materialListGet () {
+    insertToken()
     return axios.get('/api/material/list')
   },
-  materialBookCreate (oMaterialBooknMaterialBookItems) {
-    return axios.post('/api/material/book/create', oMaterialBooknMaterialBookItems)
+  materialBookCreate (params) {
+    insertToken()
+    return axios.post('/api/material/book/create', params)
   },
-  materialBookListGet (oUserId) {
-    return axios.post('/api/material/book/list', oUserId)
+  materialBookUpdateFail (params) {
+    insertToken()
+    return axios.post('/api/material/book/update/fail', params)
   },
-  meetingBookCreate (oMeetingBook) {
-    return axios.post('/api/meeting/book/create', oMeetingBook)
+  materialBookListGet (params) {
+    insertToken()
+    return axios.post('/api/material/book/list', params)
   },
-  meetingBookListGet (oUserId) {
-    return axios.post('/api/meeting/book/list', oUserId)
+  meetingBookCreate (params) {
+    insertToken()
+    return axios.post('/api/meeting/book/create', params)
+  },
+  meetingBookUpdateFail (params) {
+    insertToken()
+    return axios.post('/api/meeting/book/update/fail', params)
+  },
+  meetingBookListGet (params) {
+    insertToken()
+    return axios.post('/api/meeting/book/list', params)
   },
   meetingOccupiedTimeGet () {
+    insertToken()
     return axios.get('/api/meeting/book')
   }
 }

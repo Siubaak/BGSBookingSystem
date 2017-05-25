@@ -110,32 +110,6 @@
           </div>
         </div>
       </div>
-      <div class="weui-cells__title">我们的物资申请</div>
-      <div class="weui-cells">
-        <a class="weui-cell weui-cell_access" v-for="materialBook in materialBookList">
-          <div class="weui-cell__hd"><label class="weui-label">{{ materialBook.activity }}</label></div>
-          <div class="weui-cell__bd"></div>
-          <div class="weui-cell__ft"></div>
-        </a>
-        <div class="weui-cell" v-show="!materialBookList.length">
-          <div class="weui-cell__hd">
-            <label class="weui-label">无</label>
-          </div>
-        </div>
-      </div>
-      <div class="weui-cells__title">我们的会议室预约</div>
-      <div class="weui-cells">
-        <a class="weui-cell weui-cell_access" v-for="meetingBook in meetingBookList">
-          <div class="weui-cell__hd"><label class="weui-label">{{ meetingBook.activity }}</label></div>
-          <div class="weui-cell__bd"></div>
-          <div class="weui-cell__ft"></div>
-        </a>
-        <div class="weui-cell" v-show="!meetingBookList.length">
-          <div class="weui-cell__hd">
-            <label class="weui-label">无</label>
-          </div>
-        </div>
-      </div>
       <div class="weui-cells__title">部门账号设置</div>
       <div class="weui-cells">
         <a class="weui-cell weui-cell_access" @click="infoEditClick">
@@ -148,6 +122,38 @@
           <div class="weui-cell__bd"></div>
           <div class="weui-cell__ft"></div>
         </a>
+      </div>
+      <div class="weui-cells__title">我们的物资申请</div>
+      <div class="weui-cells">
+        <a class="weui-cell weui-cell_access" v-for="materialBook in materialBookList" @click="materialBookUpdateFail(materialBook._id)">
+          <div class="weui-cell__bd">
+            活动：{{ materialBook.activity }}<br>
+            预约人：{{ materialBook.name }} ({{ materialBook.phone }})<br>
+            领取时间：{{ materialBook.takeDate }}<br>
+            归还时间：{{ materialBook.returnDate }}<br>
+            借用物资：<label v-for="(book, index) of materialBook.book">({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp</label><br>
+            目前状态：{{ materialBook.condition === 'book' ? '预约' : '借用中' }}
+          </div>
+          <div class="weui-cell__ft"></div>
+        </a>
+        <div class="weui-cell" v-show="!materialBookList.length">
+          <div class="weui-cell__bd">暂无物资申请记录</div>
+        </div>
+      </div>
+      <div class="weui-cells__title">我们的会议室预约</div>
+      <div class="weui-cells">
+        <a class="weui-cell weui-cell_access" v-for="meetingBook in meetingBookList" @click="meetingBookUpdateFail(meetingBook._id)">
+          <div class="weui-cell__bd">
+            会议：{{ meetingBook.activity }}<br>
+            预约人：{{ meetingBook.name }} ({{ meetingBook.phone }})<br>
+            预约日期：{{ meetingBook.date }}<br>
+            预约时间：{{ meetingBook.time }}
+          </div>
+          <div class="weui-cell__ft"></div>
+        </a>
+        <div class="weui-cell" v-show="!meetingBookList.length">
+          <div class="weui-cell__bd">暂无会议室预约记录</div>
+        </div>
       </div>
       <div class="weui-msg__opr-area">
         <p class="weui-btn-area">
@@ -244,7 +250,7 @@ export default {
           loading.hide()
           if (res.status === 200) {
             weui.toast('更新信息成功', 1500)
-            this.userGet()
+            this.userInfoGet()
             this.infoEditClick()
           } else {
             weui.alert(res.data.msg)
@@ -259,21 +265,45 @@ export default {
         weui.alert('请输入更改信息和密码')
       }
     },
-    userGet () {
-      api.userGet({ userId: this.userId })
+    userInfoGet () {
+      api.userInfoGet({ userId: this.userId })
         .then((res) => {
           if (res.status === 200) {
             this.user = res.data.user
           } else {
-            weui.alert(`${res.data.msg}`, () => {
-              this.$store.dispatch('logout')
-            })
+            weui.alert(res.data.msg)
           }
         })
         .catch((err) => {
           console.error(err)
           weui.alert('用户信息加载出错，请尝试刷新页面')
         })
+    },
+    materialBookUpdateFail (materialBookId) {
+      weui.actionSheet([{
+        label: '撤销申请',
+        onClick: () => {
+          let loading = weui.loading('正在撤销')
+          api.materialBookUpdateFail({ materialBookId })
+            .then((res) => {
+              loading.hide()
+              if (res.status === 200) {
+                weui.toast('撤销成功', 1500)
+                this.materialBookListGet()
+              } else {
+                weui.alert(res.data.msg)
+              }
+            })
+            .catch((err) => {
+              loading.hide()
+              console.error(err)
+              weui.alert('物资申请撤销出错，请稍后再试')
+            })
+        }
+      }], [{
+        label: '取消',
+        onClick: () => {}
+      }])
     },
     materialBookListGet () {
       api.materialBookListGet({ userId: this.userId })
@@ -288,6 +318,32 @@ export default {
           console.error(err)
           weui.alert('用户物资申请列表加载出错，请尝试刷新页面')
         })
+    },
+    meetingBookUpdateFail (meetingBookId) {
+      weui.actionSheet([{
+        label: '撤销预约',
+        onClick: () => {
+          let loading = weui.loading('正在撤销')
+          api.meetingBookUpdateFail({ meetingBookId })
+            .then((res) => {
+              loading.hide()
+              if (res.status === 200) {
+                weui.toast('撤销成功', 1500)
+                this.meetingBookListGet()
+              } else {
+                weui.alert(res.data.msg)
+              }
+            })
+            .catch((err) => {
+              loading.hide()
+              console.error(err)
+              weui.alert('会议室预约撤销出错，请稍后再试')
+            })
+        }
+      }], [{
+        label: '取消',
+        onClick: () => {}
+      }])
     },
     meetingBookListGet () {
       api.meetingBookListGet({ userId: this.userId })
@@ -304,10 +360,14 @@ export default {
         })
     }
   },
-  created () {
-    this.userGet()
-    this.materialBookListGet()
-    this.meetingBookListGet()
+  beforeRouteEnter: (to, from, next) => {
+    next((vm) => {
+      vm.materialBookListGet()
+      vm.meetingBookListGet()
+    })
+  },
+  beforeMount () {
+    this.userInfoGet()
   }
 }
 </script>

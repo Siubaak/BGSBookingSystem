@@ -30,7 +30,7 @@ export default {
         })
     }
   },
-  created () {
+  beforeMount () {
     this.notificationGet()
   }
 }

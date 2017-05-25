@@ -55,7 +55,7 @@ module.exports = {
     ])
   },
   async getMaterialList(findAll) {
-    let materialList = await Materials.find().sort({ _id: -1 }).exec()
+    let materialList = await Materials.find().sort({ name: 1 }).exec()
     for (let material of materialList) {
       let materialBookItems = await MaterialBookItems.find({ materialId: material._id}).exec()
       let book = 0
@@ -91,6 +91,9 @@ module.exports = {
       return Promise.reject('full_material_book')
     }
   },
+  updateMaterialBook(materialBook) {
+    return MaterialBooks.update({ _id: materialBook._id }, { $set: materialBook }).exec()
+  },
   updateMaterialBookCondition(materialBookId, condition) {
     return Promise.all([
       MaterialBooks.update({ _id: materialBookId }, { $set : { condition: condition } }).exec(),
@@ -102,6 +105,9 @@ module.exports = {
       MaterialBooks.remove({ _id: materialBookId }).exec(),
       MaterialBookItems.remove({ materialBookId: materialBookId }).exec(),
     ])
+  },
+  getMaterialBookById (materialBookId) {
+    return MaterialBooks.findOne({ _id: materialBookId }).exec()
   },
   async getMaterialBookList(userId) {
     let materialBooks = await (() => {

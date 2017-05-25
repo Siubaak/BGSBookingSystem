@@ -21,7 +21,7 @@ router.post('/admin/login', async (req, res) => {
         res.status(299).send({ code: 'auth:bad_password', msg: '密码错误' })
       }
     } else {
-      res.status(299).send({ code: 'auth:user_not_found', msg: '用户名不存在' })
+      res.status(299).send({ code: 'auth:admin_not_found', msg: '管理员不存在，已被删除' })
     }
   } catch (err) {
     console.error(err)
@@ -46,7 +46,7 @@ router.post('/admin/update/password', tokenCheck, async (req, res) => {
         res.status(299).send({ code: 'auth:bad_password', msg: '原密码错误' })
       }
     } else {
-      res.status(299).send({ code: 'data:user_not_found', msg: '管理员不存在，已被删除' })
+      res.status(299).send({ code: 'data:admin_not_found', msg: '管理员不存在，已被删除' })
     }
   } catch (err) {
     console.error(err)
@@ -163,8 +163,12 @@ router.post('/admin/material/create', tokenCheck, async (req, res) => {
 })
 
 // 后台更新物资
-router.post('/admin/material/update', tokenCheck, async (req, res) => {
-  let { material } = req.body
+router.post('/admin/material/update/quantity', tokenCheck, async (req, res) => {
+  let { materialId, quantity } = req.body
+  let material = {
+    _id: materialId,
+    quantity: quantity
+  }
   try {
     await api.updateMaterial(material)
     res.status(200).end()
@@ -225,7 +229,28 @@ router.post('/admin/material/book/update/return', tokenCheck, async (req, res) =
 router.post('/admin/material/book/update/fail', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
-    await api.updateMaterialBookCondition(materialBookId, 'fail')
+    let materialBook = await api.getMaterialBookById(materialBookId)
+    if (materialBook.condition !== 'lend') {
+      await api.updateMaterialBookCondition(materialBookId, 'fail')
+      res.status(200).end()
+    } else {
+      res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借出状态，无法作废' })
+    }
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台更新物资备注
+router.post('/admin/material/book/update/remark', tokenCheck, async (req, res) => {
+  let { materialBookId, remark } = req.body
+  let materialBook = {
+    _id: materialBookId,
+    remark: remark
+  }
+  try {
+    await api.updateMaterialBook(materialBook)
     res.status(200).end()
   } catch (err) {
     console.error(err)
@@ -237,8 +262,13 @@ router.post('/admin/material/book/update/fail', tokenCheck, async (req, res) => 
 router.post('/admin/material/book/remove', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
-    await api.removeMaterialBook(materialBookId)
-    res.status(200).end()
+    let materialBook = await api.getMaterialBookById(materialBookId)
+    if (materialBook.condition !== 'lend') {
+      await api.removeMaterialBook(materialBookId)
+      res.status(200).end()
+    } else {
+      res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借出状态，无法删除' })
+    }
   } catch (err) {
     console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })

@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
 })
 
 // 前台获取用户信息
-router.post('/user', async (req, res) => {
+router.post('/user/info', async (req, res) => {
   let { userId } = req.body
   try {
     let user = await api.getUserById(userId)
@@ -123,7 +123,7 @@ router.post('/user/update/password', tokenCheck, async (req, res) => {
 })
 
 // 前台获取通知
-router.get('/notification', tokenCheck, async (req, res) => {
+router.get('/notification', async (req, res) => {
   try {
     let notification = await api.getNotification()
     res.status(200).send({ notification })
@@ -140,7 +140,7 @@ router.get('/material/list', tokenCheck, async (req, res) => {
     if (materialList.length) {
       res.status(200).send({ materialList })
     } else {
-      res.status(299).send({ code: 'data:no_material', msg: '无物资数据，请等待后台添加' })
+      res.status(299).send({ code: 'data:no_material', msg: '所有物资均被预约或借用' })
     }
   } catch (err) {
     console.error(err)
@@ -154,6 +154,23 @@ router.post('/material/book/create', tokenCheck, async (req, res) => {
   try {
     await api.createMaterialBook(materialBook, materialBookItems)
     res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 前台更新物资申请状态，更改为作废状态，用于用户撤回
+router.post('/material/book/update/fail', tokenCheck, async (req, res) => {
+  let { materialBookId } = req.body
+  try {
+    let materialBook = await api.getMaterialBookById(materialBookId)
+    if (materialBook.condition !== 'lend') {
+      await api.updateMaterialBookCondition(materialBookId, 'fail')
+      res.status(200).end()
+    } else {
+      res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借用状态，无法撤销' })
+    }
   } catch (err) {
     console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
@@ -181,6 +198,18 @@ router.post('/meeting/book/create', tokenCheck, async (req, res) => {
   let { meetingBook } = req.body
   try {
     await api.createMeetingBook(meetingBook)
+    res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 前台更新会议室预约状态，更改为作废状态，用于部门撤回预约
+router.post('/meeting/book/update/fail', tokenCheck, async (req, res) => {
+  let { meetingBookId } = req.body
+  try {
+    await api.updateMeetingBookCondition(meetingBookId, 'fail')
     res.status(200).end()
   } catch (err) {
     console.error(err)

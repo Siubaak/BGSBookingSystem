@@ -34,8 +34,24 @@
         </div>
       </div>
        <ul class="list-group">
-        <li class="list-group-item" v-for="materialItem of materials">
-          {{ materialItem.name }}共{{ materialItem.quantity }}{{ materialItem.unit }}，剩{{ materialItem.left < 0 ? 0 : materialItem.left }}{{ materialItem.unit }}<br>
+        <li class="list-group-item" v-for="material of materials">
+          <label>{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left < 0 ? 0 : material.left }}</label> {{ material.unit }}<br>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              修改数量
+            </button>
+            <ul class="dropdown-menu">
+              <li class="edit-button">
+                <div class="input-group">
+                  <input v-model.number="material.quantity" type="text" class="form-control input-sm">
+                  <span class="input-group-btn">
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialUpdateQuantity(material)">确认</button>
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -46,7 +62,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button" @click="materialRemove(materialItem._id)">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialRemove(material._id)">确认</button>
                   </span>
                 </div>
               </li>
@@ -69,10 +85,11 @@
           <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
           <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
           <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预约{{ materialBook.takeDate }}领取<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预计{{ materialBook.returnDate }}归还<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 计划{{ materialBook.returnDate }}归还<br>
+          <div v-show="materialBook.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBook.remark }}</div>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
-          <label v-for="(bookItem, index) of materialBook.book">
-            ({{ index + 1 }}){{ bookItem.name }}{{ bookItem.book }}{{ bookItem.unit }}&nbsp
+          <label v-for="(book, index) of materialBook.book">
+            ({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp
           </label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
@@ -103,7 +120,7 @@
             状态：作废
           </span>
         </li>
-        <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
+        <li class="list-group-item" v-show="!materialBooks.length">无物资申请记录</li>
       </ul>
     </div>
   </div>
@@ -144,6 +161,21 @@ export default {
             alert('物资添加出错，请稍后再试')
           })
       }
+    },
+    materialUpdateQuantity (material) {
+      api.materialUpdateQuantity({
+        materialId: material._id,
+        quantity: material.quantity
+      }).then((res) => {
+        if (res.status === 200) {
+          this.materialListGet()
+        } else {
+          alert(res.data.msg)
+        }
+      }).catch((err) => {
+        console.error(err)
+        alert('物资数量修改出错，请稍后再试')
+      })
     },
     materialRemove (materialId) {
       if (this.ok === 'bgs') {
