@@ -16,7 +16,7 @@
         <div id="edit" class="collapse">
           <form role="form" @submit.prevent="materialCreate">
             <div class="form-group">
-              <label for="name">物资名称（如：桌子、帐篷</label>
+              <label for="name">物资名称（如：桌子、帐篷）</label>
               <input type="text" class="form-control" id="name" placeholder="请输入物资名称" required v-model="name"></input>
             </div>
             <div class="form-group">
@@ -35,6 +35,7 @@
       </div>
        <ul class="list-group">
         <li class="list-group-item" v-for="material of materials">
+          <small><span class="glyphicon glyphicon-bookmark"></span></small>
           <label>{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left < 0 ? 0 : material.left }}</label> {{ material.unit }}<br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
@@ -141,7 +142,7 @@ export default {
   },
   methods: {
     materialCreate () {
-      if (this.material.name && this.material.unit && this.material.quantity) {
+      if (this.name && this.unit && this.quantity) {
         api.materialCreate({
           material: {
             name: this.name,

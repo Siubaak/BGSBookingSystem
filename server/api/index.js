@@ -57,7 +57,7 @@ module.exports = {
   async getMaterialList(findAll) {
     let materialList = await Materials.find().sort({ name: 1 }).exec()
     for (let material of materialList) {
-      let materialBookItems = await MaterialBookItems.find({ materialId: material._id}).exec()
+      let materialBookItems = await MaterialBookItems.find({ materialId: material._id, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
       let book = 0
       switch (materialBookItems.length) {
         case 0:

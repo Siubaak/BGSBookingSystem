@@ -89,25 +89,19 @@
           <div class="weui-cell__hd">
             <label class="weui-label">部门</label>
           </div>
-          <div class="weui-cell__bd">
-            <label class="weui-label">{{ user.department }}</label>
-          </div>
+          <div class="weui-cell__bd">{{ user.department }}</div>
         </div>
         <div class="weui-cell">
           <div class="weui-cell__hd">
             <label class="weui-label">部长</label>
           </div>
-          <div class="weui-cell__bd">
-            <label class="weui-label">{{ user.reName ? user.reName : '请完善信息' }}</label>
-          </div>
+          <div class="weui-cell__bd">{{ user.reName ? user.reName : '请完善信息' }}</div>
         </div>
         <div class="weui-cell">
           <div class="weui-cell__hd">
             <label class="weui-label">手机</label>
           </div>
-          <div class="weui-cell__bd">
-            <label class="weui-label">{{ user.rePhone ? user.rePhone : '请完善信息' }}</label>
-          </div>
+          <div class="weui-cell__bd">{{ user.rePhone ? user.rePhone : '请完善信息' }}</div>
         </div>
       </div>
       <div class="weui-cells__title">部门账号设置</div>

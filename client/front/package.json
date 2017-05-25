@@ -16,7 +16,6 @@
   "dependencies": {
     "axios": "^0.16.1",
     "marked": "^0.3.6",
-    "mint-ui": "^2.2.5",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1",
     "vuex": "^2.3.1",
