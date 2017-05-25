@@ -47,7 +47,7 @@
                 <div class="input-group">
                   <input v-model.number="material.quantity" type="text" class="form-control input-sm">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button" @click="materialUpdateQuantity(material)">确认</button>
+                    <button class="btn btn-sm btn-primary" type="button" @click="materialUpdateQuantity(material)">确认</button>
                   </span>
                 </div>
               </li>
