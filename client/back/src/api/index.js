@@ -8,29 +8,29 @@ let insertToken = () => {
 
 export default {
 // 管理员API
-  adminLogin (oAccountPassword) {
-    return axios.post('/api/admin/login', oAccountPassword)
+  adminLogin (params) {
+    return axios.post('/api/admin/login', params)
   },
-  adminUpdate (oPassword) {
+  adminUpdate (params) {
     insertToken()
-    return axios.post('/api/admin/update/password', oPassword)
+    return axios.post('/api/admin/update/password', params)
   },
 // 用户API
-  userCreate (oDepartment) {
+  userCreate (params) {
     insertToken()
-    return axios.post('/api/admin/user/create', oDepartment)
+    return axios.post('/api/admin/user/create', params)
   },
-  userAuth (oUser) {
+  userAuth (params) {
     insertToken()
-    return axios.post('/api/admin/user/update/auth', oUser)
+    return axios.post('/api/admin/user/update/auth', params)
   },
-  userReset (oUser) {
+  userReset (params) {
     insertToken()
-    return axios.post('/api/admin/user/update/reset', oUser)
+    return axios.post('/api/admin/user/update/reset', params)
   },
-  userRemove (oUserId) {
+  userRemove (params) {
     insertToken()
-    return axios.post('/api/admin/user/remove', oUserId)
+    return axios.post('/api/admin/user/remove', params)
   },
   userListGet () {
     insertToken()
@@ -41,22 +41,22 @@ export default {
     insertToken()
     return axios.get('/api/admin/notification')
   },
-  notificationUpdate (oNotification) {
+  notificationUpdate (params) {
     insertToken()
-    return axios.post('/api/admin/notification/update', oNotification)
+    return axios.post('/api/admin/notification/update', params)
   },
 // 物资API
-  materialCreate (oMaterial) {
+  materialCreate (params) {
     insertToken()
-    return axios.post('/api/admin/material/create', oMaterial)
+    return axios.post('/api/admin/material/create', params)
   },
   materialUpdateQuantity (params) {
     insertToken()
     return axios.post('/api/admin/material/update/quantity', params)
   },
-  materialRemove (oMaterialId) {
+  materialRemove (params) {
     insertToken()
-    return axios.post('/api/admin/material/remove', oMaterialId)
+    return axios.post('/api/admin/material/remove', params)
   },
   materialListGet () {
     insertToken()
@@ -66,20 +66,20 @@ export default {
     insertToken()
     return axios.post('/api/admin/material/book/update/remark', params)
   },
-  materialBookUpdateCondition (oMaterialBookId, condition) {
+  materialBookUpdateCondition (params, condition) {
     insertToken()
     switch (condition) {
       case 'lend':
-        return axios.post('/api/admin/material/book/update/lend', oMaterialBookId)
+        return axios.post('/api/admin/material/book/update/lend', params)
       case 'return':
-        return axios.post('/api/admin/material/book/update/return', oMaterialBookId)
+        return axios.post('/api/admin/material/book/update/return', params)
       default:
-        return axios.post('/api/admin/material/book/update/fail', oMaterialBookId)
+        return axios.post('/api/admin/material/book/update/fail', params)
     }
   },
-  materialBookRemove (oMaterialBookId) {
+  materialBookRemove (params) {
     insertToken()
-    return axios.post('/api/admin/material/book/remove', oMaterialBookId)
+    return axios.post('/api/admin/material/book/remove', params)
   },
   materialBookListGet () {
     insertToken()
@@ -90,9 +90,9 @@ export default {
     return axios.get('/api/admin/material/book/list/all')
   },
 // 会议室API
-  meetingBookUpdateFail (oMeetingBookId) {
+  meetingBookUpdateFail (params) {
     insertToken()
-    return axios.post('/api/admin/meeting/book/update/fail', oMeetingBookId)
+    return axios.post('/api/admin/meeting/book/update/fail', params)
   },
   meetingBookRemove (params) {
     insertToken()

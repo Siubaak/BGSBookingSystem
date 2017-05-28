@@ -1,16 +1,16 @@
-let logToken = () => {
-  let token = localStorage.getItem('jwtf')
+let token = (() => {
+  let token = localStorage.getItem('jwtb')
   if (token) {
     const payload = JSON.parse(window.atob(token.split('.')[1]))
     if (payload.exp > Date.now() / 1000) {
       return token
     } else {
-      return false
+      return null
     }
   } else {
-    return false
+    return null
   }
-}
+})()
 export default {
-  token: logToken()
+  token
 }

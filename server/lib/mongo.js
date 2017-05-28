@@ -8,6 +8,7 @@ let Users = mongolass.model('User', {
       department: { type: 'string'},
       password: { type: 'string' },
       isAuth: { type: 'boolean' },
+      isMain: { type: 'boolean' },
       reName: { type: 'string' },  //部长姓名
       rePhone: { type: 'string' },  //部长电话
     })

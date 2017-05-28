@@ -76,7 +76,7 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small>
-          全部物资申请预约/借出列表
+          全部物资申请列表
         </h4>
       </div>
       <ul class="list-group">

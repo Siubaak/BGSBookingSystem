@@ -32,7 +32,7 @@ module.exports = {
     return Users.findOne({ _id: userId }).exec()
   },
   getUserList() {
-    return Users.find().sort({ _id: -1 }).exec()
+    return Users.find().sort({ department: 1 }).exec()
   },
 // 通知公告相关API函数
   updateNotification(notification) {

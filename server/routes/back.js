@@ -56,11 +56,12 @@ router.post('/admin/update/password', tokenCheck, async (req, res) => {
 
 // 后台创建部门用户
 router.post('/admin/user/create', tokenCheck, async (req, res) => {
-  let { department } = req.body
+  let { department, isMain } = req.body
   let user = {
     department: department,
     password: sha1('123456'),
     isAuth: false,
+    isMain: isMain,
     reName: '',
     rePhone: '',
     materialBook: 0,

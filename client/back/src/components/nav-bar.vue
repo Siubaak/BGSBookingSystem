@@ -36,12 +36,12 @@
                 </li>
                 <li>
                   <router-link to="/admin/setting/material" @click.native="item3Click">
-                    <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 全部物资申请及物资管理
+                    <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 物资管理和全部物资申请记录
                   </router-link>
                 </li>
                 <li>
                   <router-link to="/admin/setting/meeting" @click.native="item3Click">
-                    <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 全部会议室预约
+                    <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 全部会议室预约记录
                   </router-link>
                 </li>
                 <li>

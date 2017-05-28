@@ -5,6 +5,8 @@ module.exports = (user) => {
   return jwt.sign(
     {
       id: user._id,
+      isAuth: user.isAuth,
+      isMain: user.isMain,
       exp: parseInt(expiry.getTime()/1000)
     },
     process.env.JWT_SECRET

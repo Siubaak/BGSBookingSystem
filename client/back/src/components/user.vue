@@ -35,7 +35,7 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small>
-          部门用户审核列表
+          部门用户列表
         </h4>
       </div>
       <div class="panel-body">
@@ -46,6 +46,14 @@
         </button>
         <div id="new" class="collapse">
           <form role="form" @submit.prevent="userCreate">
+            <div class="form-group">
+              <label for="class">部门归属</label>
+              <select class="form-control" v-model.number="isMain">
+                <option value="1">研究生会</option>
+                <option value="2">研究生团委</option>
+                <option value="3">研究生分会</option>
+              </select>
+            </div>
             <div class="form-group">
               <label for="department">部门名称</label>
               <input type="text" class="form-control" id="department" placeholder="请输入部门名称" required v-model="department"></input>
@@ -152,6 +160,7 @@ export default {
       newPassword: '',
       newPasswordForCheck: '',
       department: '',
+      isMain: '',
       users: []
     }
   },
@@ -182,10 +191,12 @@ export default {
       }
     },
     userCreate () {
-      if (this.department) {
-        api.userCreate({ department: this.department })
+      if (this.department && this.isMain) {
+        let isMainSend = (this.isMain !== 3)
+        api.userCreate({ department: this.department, isMain: isMainSend })
           .then((res) => {
             if (res.status === 200) {
+              this.department = ''
               this.userListGet()
             } else {
               alert(res.data.msg)
@@ -195,7 +206,7 @@ export default {
             alert('创建出错，请稍后再试')
           })
       } else {
-        alert('请输入部门名称')
+        alert('请正确填写信息')
       }
     },
     userRemove (userId) {

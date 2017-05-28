@@ -28,7 +28,7 @@
       <div class="weui-msg__opr-area">
         <p class="weui-btn-area">
           <a @click="login" class="weui-btn weui-btn_primary">登录</a>
-          <a href="javascript:history.back();" class="weui-btn weui-btn_warn">取消</a>
+          <router-link to="/" class="weui-btn weui-btn_warn">取消</router-link>
         </p>
       </div>
     </div>
