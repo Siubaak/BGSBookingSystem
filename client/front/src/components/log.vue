@@ -54,7 +54,7 @@ export default {
       }
     },
     departmentPick () {
-      let loading = weui.loading('正在加载部门列表')
+      let loading = weui.loading('正在加载列表')
       api.userListGet()
         .then((res) => {
           loading.hide()
@@ -76,8 +76,7 @@ export default {
           } else {
             weui.alert(res.data.msg)
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           loading.hide()
           console.error(err)
           weui.alert('物资列表加载失败，请稍后再试')

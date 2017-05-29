@@ -140,7 +140,7 @@ export default {
     },
     timePick () {
       if (this.time !== '请先选择借用日期') {
-        let loading = weui.loading('正在获取会议室空闲时间')
+        let loading = weui.loading('正在加载列表')
         api.meetingOccupiedTimeGet()
           .then((res) => {
             loading.hide()
@@ -203,7 +203,7 @@ export default {
           }).catch((err) => {
             loading.hide()
             console.error(err)
-            weui.alert('会议室空闲时间获取出错，请稍后再试')
+            weui.alert('会议室空闲时间加载出错，请稍后再试')
           })
       }
     }

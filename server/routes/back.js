@@ -30,7 +30,7 @@ router.post('/admin/login', async (req, res) => {
 })
 
 // 后台更新管理员密码
-router.post('/admin/update/password', tokenCheck, async (req, res) => {
+router.post('/admin/update/password', async (req, res) => {
   let { adminId, newPassword, passwordForCheck} = req.body
   let adminForUpdate = {
     _id: adminId,

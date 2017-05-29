@@ -72,7 +72,7 @@ router.get('/user/list', async (req, res) => {
 })
 
 // 前台更新用户信息
-router.post('/user/update/info', tokenCheck, async (req, res) => {
+router.post('/user/update/info', async (req, res) => {
   let { userId, reName, rePhone, passwordForCheck } = req.body
   let userForUpdate = {
     _id: userId,
@@ -98,7 +98,7 @@ router.post('/user/update/info', tokenCheck, async (req, res) => {
 })
 
 // 前台更新用户密码
-router.post('/user/update/password', tokenCheck, async (req, res) => {
+router.post('/user/update/password', async (req, res) => {
   let { userId, newPassword, passwordForCheck } = req.body
   let userForUpdate = {
     _id: userId,

@@ -239,8 +239,7 @@ export default {
           reName: this.reName,
           rePhone: this.rePhone,
           passwordForCheck: this.passwordForCheck
-        })
-        .then((res) => {
+        }).then((res) => {
           loading.hide()
           if (res.status === 200) {
             weui.toast('更新信息成功', 1500)
@@ -249,8 +248,7 @@ export default {
           } else {
             weui.alert(res.data.msg)
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           loading.hide()
           console.error(err)
           weui.alert('更新出错，请稍后再试')
@@ -267,8 +265,7 @@ export default {
           } else {
             weui.alert(res.data.msg)
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           console.error(err)
           weui.alert('用户信息加载出错，请尝试刷新页面')
         })
@@ -287,8 +284,7 @@ export default {
               } else {
                 weui.alert(res.data.msg)
               }
-            })
-            .catch((err) => {
+            }).catch((err) => {
               loading.hide()
               console.error(err)
               weui.alert('物资申请撤销出错，请稍后再试')
@@ -307,8 +303,7 @@ export default {
           } else {
             this.materialBookList = []
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           console.error(err)
           weui.alert('用户物资申请列表加载出错，请尝试刷新页面')
         })
@@ -327,8 +322,7 @@ export default {
               } else {
                 weui.alert(res.data.msg)
               }
-            })
-            .catch((err) => {
+            }).catch((err) => {
               loading.hide()
               console.error(err)
               weui.alert('会议室预约撤销出错，请稍后再试')
@@ -347,8 +341,7 @@ export default {
           } else {
             this.meetingBookList = []
           }
-        })
-        .catch((err) => {
+        }).catch((err) => {
           console.error(err)
           weui.alert('用户会议室预约列表加载出错，请尝试刷新页面')
         })
@@ -360,7 +353,7 @@ export default {
       vm.meetingBookListGet()
     })
   },
-  beforeMount () {
+  created () {
     this.userInfoGet()
   }
 }

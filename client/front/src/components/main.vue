@@ -75,7 +75,7 @@ export default {
       this.item4Selected = false
     },
     item4Click () {
-      this.title = '我的账号'
+      this.title = '部门账号'
       this.item1Selected = false
       this.item2Selected = false
       this.item3Selected = false

@@ -149,18 +149,17 @@ export default {
             unit: this.unit,
             quantity: this.quantity
           }
+        }).then((res) => {
+          if (res.status === 200) {
+            this.materialListGet()
+            this.materialBookListGetAll()
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('物资添加出错，请稍后再试')
         })
-          .then((res) => {
-            if (res.status === 200) {
-              this.materialListGet()
-              this.materialBookListGetAll()
-            } else {
-              alert(res.data.msg)
-            }
-          }).catch((err) => {
-            console.error(err)
-            alert('物资添加出错，请稍后再试')
-          })
       }
     },
     materialUpdateQuantity (material) {
