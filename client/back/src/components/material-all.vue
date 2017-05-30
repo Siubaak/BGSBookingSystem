@@ -16,6 +16,10 @@
         <div id="edit" class="collapse">
           <form role="form" @submit.prevent="materialCreate">
             <div class="form-group">
+              <label for="name">物资类别（如：办公用品、消耗品）</label>
+              <input type="text" class="form-control" id="type" placeholder="请输入物资类别" required v-model="type"></input>
+            </div>
+            <div class="form-group">
               <label for="name">物资名称（如：桌子、帐篷）</label>
               <input type="text" class="form-control" id="name" placeholder="请输入物资名称" required v-model="name"></input>
             </div>
@@ -36,7 +40,7 @@
        <ul class="list-group">
         <li class="list-group-item" v-for="material of materials">
           <small><span class="glyphicon glyphicon-bookmark"></span></small>
-          <label>{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left < 0 ? 0 : material.left }}</label> {{ material.unit }}<br>
+          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left < 0 ? 0 : material.left }}</label> {{ material.unit }}<br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -133,6 +137,7 @@ export default {
   data () {
     return {
       ok: '',
+      type: '',
       name: '',
       unit: '',
       quantity: 1,
@@ -145,6 +150,7 @@ export default {
       if (this.name && this.unit && this.quantity) {
         api.materialCreate({
           material: {
+            type: this.type,
             name: this.name,
             unit: this.unit,
             quantity: this.quantity

@@ -57,16 +57,16 @@ export default {
       let loading = weui.loading('正在加载列表')
       api.userListGet()
         .then((res) => {
-          loading.hide()
           if (res.status === 200) {
             let options = []
             let userList = res.data.userList
             userList.forEach((user, index) => {
               options.push({
-                label: `${user.department}`,
+                label: user.department,
                 value: index
               })
             })
+            loading.hide()
             weui.picker(options, {
               onConfirm: (result) => {
                 this.user.department = result[0].label
@@ -74,6 +74,7 @@ export default {
               id: 'material-picker'
             })
           } else {
+            loading.hide()
             weui.alert(res.data.msg)
           }
         }).catch((err) => {

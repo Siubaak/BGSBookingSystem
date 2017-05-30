@@ -143,7 +143,6 @@ export default {
         let loading = weui.loading('正在加载列表')
         api.meetingOccupiedTimeGet()
           .then((res) => {
-            loading.hide()
             if (res.status === 200) {
               this.occupiedTime = res.data.occupiedTime
               let options = []
@@ -189,6 +188,7 @@ export default {
                   value: -1
                 })
               }
+              loading.hide()
               weui.picker(options, {
                 onConfirm: (result) => {
                   if (result[0].value !== -1) {
@@ -198,6 +198,7 @@ export default {
                 id: 'time-picker'
               })
             } else {
+              loading.hide()
               weui.alert(res.data.msg)
             }
           }).catch((err) => {

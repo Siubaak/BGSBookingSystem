@@ -177,7 +177,7 @@ export default {
     numberPick (index, materialBookItem, n) {
       let options = []
       options.push({
-        label: `删除`,
+        label: '删除',
         value: 0
       })
       if (n === -1) {
@@ -189,7 +189,7 @@ export default {
         n = n > 30 ? 30 : n
         for (let i = 1; i <= n; ++i) {
           options.push({
-            label: `${i}`,
+            label: i,
             value: i
           })
         }
@@ -210,39 +210,51 @@ export default {
       let loading = weui.loading('正在加载列表')
       api.materialListGet()
         .then((res) => {
-          loading.hide()
           if (res.status === 200) {
             this.materials = res.data.materialList
+            this.materials.push({})
             let options = []
-            if (this.materials.length === this.materialBookItems.length) {
-              options.push({
-                label: '无',
-                value: -1
-              })
-            } else {
-              for (let i = 0; i < this.materials.length; ++i) {
-                let isSelected = false
-                for (let selectedItem of this.materialBookItems) {
-                  if (selectedItem.index === i) {
-                    isSelected = true
-                    break
-                  }
+            let children = []
+            for (let i = 0; i < this.materials.length - 1; ++i) {
+              let isSelected = false
+              for (let materialBookItem of this.materialBookItems) {
+                if (materialBookItem.index === i) {
+                  isSelected = true
+                  break
                 }
-                if (!isSelected) {
+              }
+              if (!isSelected) {
+                children.push({
+                  label: this.materials[i].name,
+                  value: i
+                })
+              }
+              if (this.materials[i + 1].type !== this.materials[i].type) {
+                if (children.length) {
                   options.push({
-                    label: `${this.materials[i].name}`,
-                    value: i
+                    label: this.materials[i].type,
+                    children
+                  })
+                  children = []
+                } else {
+                  options.push({
+                    label: this.materials[i].type,
+                    children: [{
+                      label: '无',
+                      value: -1
+                    }]
                   })
                 }
               }
             }
+            loading.hide()
             weui.picker(options, {
               onConfirm: (result) => {
-                if (result[0].value !== -1) {
+                if (result[1].value !== -1) {
                   this.materialBookItems.push({
-                    index: result[0].value,
+                    index: result[1].value,
                     userId: this.userId,
-                    materialId: this.materials[result[0].value]._id,
+                    materialId: this.materials[result[1].value]._id,
                     book: 0,
                     condition: 'book'
                   })
@@ -251,6 +263,7 @@ export default {
               id: 'material-picker'
             })
           } else {
+            loading.hide()
             weui.alert(res.data.msg)
           }
         }).catch((err) => {
