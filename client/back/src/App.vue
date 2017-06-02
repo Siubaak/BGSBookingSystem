@@ -7,9 +7,13 @@
 <style>
 body {
   background-color: #ECF4F7 !important;
-  padding-top: 70px;
 }
 textarea {
   resize: none;
+}
+.side {
+  position: fixed;
+  bottom: 20px;
+  right: 15px;
 }
 </style>

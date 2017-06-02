@@ -125,7 +125,7 @@
             预约人：{{ materialBook.name }} ({{ materialBook.phone }})<br>
             领取时间：{{ materialBook.takeDate }}<br>
             归还时间：{{ materialBook.returnDate }}<br>
-            借用物资：<label v-for="(book, index) of materialBook.book">({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp</label><br>
+            借用物资：<label v-for="(book, index) of materialBook.book"><b>({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp</b></label><br>
             目前状态：{{ materialBook.condition === 'book' ? '预约' : '借用中' }}
           </div>
           <div class="weui-cell__ft"></div>

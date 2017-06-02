@@ -1,10 +1,10 @@
 <template>
-  <div id="meeting-book">
+  <div id="meeting-book-all">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small>
-          全部会议室预约列表
+          会议室预约所有记录
         </h4>
       </div>
       <ul class="list-group">

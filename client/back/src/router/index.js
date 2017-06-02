@@ -3,11 +3,12 @@ import Router from 'vue-router'
 import store from '../store'
 import login from '../components/login'
 import admin from '../components/admin'
-import material from '../components/material'
-import meeting from '../components/meeting'
+import materialBook from '../components/material-book'
+import meetingBook from '../components/meeting-book'
 import notification from '../components/notification'
 import materialAll from '../components/material-all'
-import meetingAll from '../components/meeting-all'
+import materialBookAll from '../components/material-book-all'
+import meetingBookAll from '../components/meeting-book-all'
 import user from '../components/user'
 
 Vue.use(Router)
@@ -26,12 +27,12 @@ let router = new Router({
     children: [{
       path: '',
       name: 'material-book',
-      component: material
+      component: materialBook
     },
     {
-      path: 'meeting',
+      path: 'meeting-book',
       name: 'meeting-book',
-      component: meeting
+      component: meetingBook
     },
     {
       path: 'setting/notification',
@@ -44,9 +45,14 @@ let router = new Router({
       component: materialAll
     },
     {
-      path: 'setting/meeting',
+      path: 'setting/material-book',
+      name: 'material-all',
+      component: materialBookAll
+    },
+    {
+      path: 'setting/meeting-book',
       name: 'meeting-all',
-      component: meetingAll
+      component: meetingBookAll
     },
     {
       path: 'setting/user',

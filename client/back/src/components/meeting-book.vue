@@ -39,6 +39,9 @@
         <li class="list-group-item" v-show="!meetingBooks.length">当前没有部门预约会议室</li>
       </ul>
     </div>
+    <button type="button" class="btn btn-info side" @click="meetingBookListGet">
+      <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+    </button>
   </div>
 </template>
 

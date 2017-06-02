@@ -1,6 +1,6 @@
 <template>
   <div id="nav-bar">
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#collapse-narbar">
@@ -14,11 +14,11 @@
           <ul class="nav navbar-nav">
             <li :class="{ active: isItem1Selected }">
               <router-link to="/admin" @click.native="item1Click">
-                <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 物资申请
+                <small><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span></small> 物资申请
               </router-link>
             </li>
             <li :class="{ active: isItem2Selected }">
-              <router-link to="/admin/meeting" @click.native="item2Click">
+              <router-link to="/admin/meeting-book" @click.native="item2Click">
                 <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 会议室预约
               </router-link>
             </li>
@@ -36,12 +36,17 @@
                 </li>
                 <li>
                   <router-link to="/admin/setting/material" @click.native="item3Click">
-                    <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 物资管理和全部物资申请记录
+                    <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 物资管理
                   </router-link>
                 </li>
                 <li>
-                  <router-link to="/admin/setting/meeting" @click.native="item3Click">
-                    <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 全部会议室预约记录
+                  <router-link to="/admin/setting/material-book" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span></small> 物资申请所有记录
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/admin/setting/meeting-book" @click.native="item3Click">
+                    <small><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span></small> 会议室预约所有记录
                   </router-link>
                 </li>
                 <li>
@@ -67,8 +72,7 @@ export default {
     return {
       isItem1Selected: true,
       isItem2Selected: false,
-      isItem3Selected: false,
-      isItem4Selected: false
+      isItem3Selected: false
     }
   },
   methods: {
@@ -79,19 +83,16 @@ export default {
       this.isItem1Selected = true
       this.isItem2Selected = false
       this.isItem3Selected = false
-      this.isItem4Selected = false
     },
     item2Click () {
       this.isItem1Selected = false
       this.isItem2Selected = true
       this.isItem3Selected = false
-      this.isItem4Selected = false
     },
     item3Click () {
       this.isItem1Selected = false
       this.isItem2Selected = false
       this.isItem3Selected = true
-      this.isItem4Selected = false
     },
     item4Click () {
       this.isItem1Selected = false

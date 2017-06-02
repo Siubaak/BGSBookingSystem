@@ -3,7 +3,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h4 class="panel-title">
-          <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small>
+          <small><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span></small>
           物资申请预约/借出列表
         </h4>
       </div>
@@ -96,6 +96,9 @@
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
       </ul>
     </div>
+    <button type="button" class="btn btn-info side" @click="materialBookListGet">
+      <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+    </button>
   </div>
 </template>
 
