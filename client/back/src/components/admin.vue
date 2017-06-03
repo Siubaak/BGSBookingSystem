@@ -10,6 +10,9 @@
         </div>
       </div>
     </div>
+    <button type="button" class="btn btn-info side-bottom" @click="scrollToTop">
+      <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+    </button>
   </div>
 </template>
 
@@ -18,6 +21,20 @@ import navBar from './nav-bar'
 export default {
   components: {
     navBar
+  },
+  methods: {
+    scrollToTop () {
+      let step = document.body.scrollTop / 50
+      let smoothScroll = () => {
+        if (document.body.scrollTop > 0) {
+          document.body.scrollTop -= step
+          setTimeout(smoothScroll, 1)
+        } else {
+          document.body.scrollTop = 0
+        }
+      }
+      smoothScroll()
+    }
   }
 }
 </script>
@@ -25,5 +42,10 @@ export default {
 <style scoped>
 body {
   padding: 70px 0px 20px 0px;
+}
+.side-bottom {
+  position: fixed;
+  bottom: 20px;
+  right: 15px;
 }
 </style>

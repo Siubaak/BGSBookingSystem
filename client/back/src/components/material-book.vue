@@ -80,7 +80,7 @@
                 <div class="input-group">
                   <input v-model="materialBook.remark" type="text" class="form-control input-sm">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdateRemark(materialBook)">确认</button>
+                    <button class="btn btn-sm btn-default" type="button" @click="materialBookUpdateRemark(materialBook)">确认</button>
                   </span>
                 </div>
               </li>
@@ -96,7 +96,7 @@
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>
       </ul>
     </div>
-    <button type="button" class="btn btn-info side" @click="materialBookListGet">
+    <button type="button" class="btn btn-info side-top" @click="materialBookListGet">
       <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
     </button>
   </div>
@@ -169,5 +169,10 @@ export default {
 }
 .label-condition {
   padding: 8px;
+}
+.side-top {
+  position: fixed;
+  bottom: 60px;
+  right: 15px;
 }
 </style>

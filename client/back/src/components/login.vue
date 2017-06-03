@@ -55,6 +55,7 @@ export default {
 
 <style scoped>
 .login {
+  margin-top: 150px;
   width: 300px;
 }
 </style>

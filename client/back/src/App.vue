@@ -11,9 +11,4 @@ body {
 textarea {
   resize: none;
 }
-.side {
-  position: fixed;
-  bottom: 20px;
-  right: 15px;
-}
 </style>
