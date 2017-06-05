@@ -149,8 +149,12 @@ router.get('/material/list', tokenCheck, async (req, res) => {
 router.post('/material/book/create', tokenCheck, async (req, res) => {
   let { materialBook, materialBookItems } = req.body
   try {
-    await api.createMaterialBook(materialBook, materialBookItems)
-    res.status(200).end()
+    let result = await api.createMaterialBook(materialBook, materialBookItems)
+    if (result === 'success') {
+      res.status(200).end()
+    } else {
+      res.status(299).send({ code: 'data:full_material_book', msg: '该用户可进行物资申请次数已满' })
+    }
   } catch (err) {
     console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })
@@ -194,8 +198,14 @@ router.post('/material/book/list', tokenCheck, async (req, res) => {
 router.post('/meeting/book/create', tokenCheck, async (req, res) => {
   let { meetingBook } = req.body
   try {
-    await api.createMeetingBook(meetingBook)
-    res.status(200).end()
+    let result = await api.createMeetingBook(meetingBook)
+    if (result === 'success') {
+      res.status(200).end()
+    } else if (result === 'full') {
+      res.status(299).send({ code: 'data:full_meeting_book', msg: '该用户可进行会议室预约次数已满' })
+    } else {
+      res.status(299).send({ code: 'data:meeting_booked', msg: '该时间段已被预约' })
+    }
   } catch (err) {
     console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })

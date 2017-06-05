@@ -47,8 +47,8 @@
       <a class="weui-cell weui-cell_access" @click="numberPick(index, materialBookItem, materials[materialBookItem.index].left)" v-for="(materialBookItem, index) in materialBookItems">
         <div class="weui-cell__hd"><label class="weui-label">{{ materials[materialBookItem.index].name }}</label></div>
         <div class="weui-cell__bd">
-          <p v-show="!materialBookItem.book">请选择数量，剩余{{ materials[materialBookItem.index].left > 30 ? 30 : materials[materialBookItem.index].left }}{{ materials[materialBookItem.index].unit }}</p>
-          <p v-show="materialBookItem.book">{{ materialBookItem.book}}{{ materials[materialBookItem.index].unit }}</p>
+          <p v-show="!materialBookItem.book">请选择数量，剩余{{ materials[materialBookItem.index].left }}{{ materials[materialBookItem.index].unit }}</p>
+          <p v-show="materialBookItem.book">{{ materialBookItem.book }}{{ materials[materialBookItem.index].unit }}</p>
         </div>
         <div class="weui-cell__ft"></div>
       </a>
@@ -180,19 +180,11 @@ export default {
         label: '删除',
         value: 0
       })
-      if (n === -1) {
+      for (let i = 1; i <= n; ++i) {
         options.push({
-          label: '若干',
-          value: -1
+          label: i,
+          value: i
         })
-      } else {
-        n = n > 30 ? 30 : n
-        for (let i = 1; i <= n; ++i) {
-          options.push({
-            label: i,
-            value: i
-          })
-        }
       }
       weui.picker(options, {
         defaultValue: [1],

@@ -86,10 +86,10 @@ module.exports = {
       for (let materialBookItem of materialBookItems) {
         materialBookItem.materialBookId = materialBookId
       }
-      let result = await MaterialBookItems.create(materialBookItems).exec()
-      return Promise.resolve(result)
+      await MaterialBookItems.create(materialBookItems).exec()
+      return Promise.resolve('success')
     } else {
-      return Promise.reject('full_material_book')
+      return Promise.resolve('full')
     }
   },
   updateMaterialBook(materialBook) {
@@ -139,13 +139,14 @@ module.exports = {
     return (async () => {
       let isBook = await MeetingBooks.findOne({ date: meetingBook.date, time: meetingBook.time, condition: 'book' }).exec()
       if (isBook) {
-        return Promise.resolve('Booked')
+        return Promise.resolve('booked')
       } else {
         let meetingBooks = await MeetingBooks.find({ userId: meetingBook.userId, condition: 'book' }).exec()
         if (meetingBooks.length < conf.maxMeetingBook) {
-          return MeetingBooks.create(meetingBook).exec()
+          await MeetingBooks.create(meetingBook).exec()
+          return Promise.resolve('success')
         } else {
-          return Promise.reject('full_meeting_book')
+          return Promise.resolve('full')
         }
       }
     })()
