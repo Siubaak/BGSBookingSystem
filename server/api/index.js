@@ -1,4 +1,5 @@
 let { Admins, Users, Notifications, Materials, MaterialBooks, MaterialBookItems, MeetingBooks } = require('../lib/mongo')
+let conf = require('../conf')
 
 module.exports = {
 // 用户相关API函数
@@ -80,7 +81,7 @@ module.exports = {
 // 物资申请相关API函数
   async createMaterialBook(materialBook, materialBookItems) {
     let materialBooks = await MaterialBooks.find({ userId: materialBook.userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
-    if (materialBooks.length < 4) {
+    if (materialBooks.length < conf.maxMaterialBook) {
       let materialBookId = (await MaterialBooks.create(materialBook).exec()).insertedIds[0]
       for (let materialBookItem of materialBookItems) {
         materialBookItem.materialBookId = materialBookId
@@ -141,7 +142,7 @@ module.exports = {
         return Promise.resolve('Booked')
       } else {
         let meetingBooks = await MeetingBooks.find({ userId: meetingBook.userId, condition: 'book' }).exec()
-        if (meetingBooks.length < 4) {
+        if (meetingBooks.length < conf.maxMeetingBook) {
           return MeetingBooks.create(meetingBook).exec()
         } else {
           return Promise.reject('full_meeting_book')
@@ -151,6 +152,9 @@ module.exports = {
   },
   updateMeetingBookCondition(meetingBookId, condition) {
     return MeetingBooks.update({ _id: meetingBookId }, { $set: { condition: condition } }).exec()
+  },
+  updateMeetingScheduleReturn(today) {
+    return MeetingBooks.update({ date: today, condition: 'book' }, { $set: { condition: 'return' } }, { multi: true }).exec()
   },
   removeMeetingBook(meetingBookId) {
     return MeetingBooks.remove({ _id: meetingBookId }).exec()

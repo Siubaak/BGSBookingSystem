@@ -5,9 +5,6 @@ let api = require('../api')
 let tokenCreate = require('../token-mw/token-create-front')
 let tokenCheck = require('../token-mw/token-check-front')
 let sha1 = require('sha1')
-let dotenv = require('dotenv')
-
-dotenv.load()
 
 // 前台登录，返回token
 router.post('/login', async (req, res) => {

@@ -1,5 +1,6 @@
+let conf = require('../conf')
 let Mongolass = require('mongolass')
-let mongolass = new Mongolass('mongodb://127.0.0.1:27017/bgs')
+let mongolass = new Mongolass(`mongodb://${conf.dbIP}:${conf.dbPort}/${conf.dbName}`)
 let Admins = mongolass.model('Admin', {
   account: { type: 'string' },
   password: { type: 'string' },

@@ -1,7 +1,9 @@
 let jwt = require('jsonwebtoken')
+let conf = require('../conf')
+
 module.exports = (user) => {
   let expiry = new Date()
-  expiry.setDate(expiry.getDate() + 7)
+  expiry.setDate(expiry.getDate() + conf.userExpiry)
   return jwt.sign(
     {
       id: user._id,
@@ -9,6 +11,6 @@ module.exports = (user) => {
       isMain: user.isMain,
       exp: parseInt(expiry.getTime()/1000)
     },
-    process.env.JWT_SECRET
+    conf.jwtSecret
   )
 }

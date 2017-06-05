@@ -4,22 +4,22 @@ let app = express()
 let routes = require('./routes')
 let schedule = require('./schedule')
 let bodyParser = require('body-parser')
+let conf = require('./conf')
 
-schedule.meetingReturnSchedule()
+schedule()
 
 app.use(bodyParser.json())
 app.use((req, res, next) => {
   console.log(`Processing ${req.method} ${req.originalUrl} ...`)
   next()
 })
+
 routes(app)
 
-app.set('port', process.env.PORT || 3009);
-
-app.listen(app.get('port'), (err) => {
+app.listen(conf.serverPort, (err) => {
   if (!err) {
-    console.log(`Express server is listening on port ${app.get('port')} ...`)
+    console.log(`Express server is listening on port ${conf.serverPort} ...`)
   } else {
     console.log(err)
   }
-});
+})

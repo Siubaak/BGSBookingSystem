@@ -5,9 +5,7 @@ let api = require('../api')
 let tokenCreate = require('../token-mw/token-create')
 let tokenCheck = require('../token-mw/token-check')
 let sha1 = require('sha1')
-let dotenv = require('dotenv')
-
-dotenv.load()
+let conf = require('../conf')
 
 // 后台登录路由，返回token
 router.post('/admin/login', async (req, res) => {
@@ -59,7 +57,7 @@ router.post('/admin/user/create', tokenCheck, async (req, res) => {
   let { department, isMain } = req.body
   let user = {
     department: department,
-    password: sha1('123456'),
+    password: sha1(conf.userDefaultPassword),
     isAuth: false,
     isMain: isMain,
     reName: '',
@@ -92,7 +90,7 @@ router.post('/admin/user/update/auth', tokenCheck, async (req, res) => {
 // 后台重置部门用户
 router.post('/admin/user/update/reset', tokenCheck, async (req, res) => {
   let { user } = req.body
-  user.password = sha1('123456')
+  user.password = sha1(conf.userDefaultPassword)
   user.isAuth = false
   user.reName = ''
   user.rePhone = ''
