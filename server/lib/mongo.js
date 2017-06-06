@@ -30,14 +30,14 @@ let MaterialBooks = mongolass.model('MaterialBook', {
   takeDate: { type: 'string' },  //格式YYYY-MM-DD
   returnDate: { type: 'string' },  //格式YYYY-MM-DD
   remark: { type: 'string' },
-  condition: { type: 'string', enum: ['book', 'lend', 'return', 'fail'] }  //book为预约，lend为借出，return为归还，fail为作废
+  condition: { type: 'string', enum: ['预约', '借出', '归还', '作废'] }
 })
 let MaterialBookItems = mongolass.model('MaterialBookItem', {
   userId: { type: Mongolass.Types.ObjectId },
   materialBookId: { type: Mongolass.Types.ObjectId },
   materialId: { type: Mongolass.Types.ObjectId },
   book: { type: 'number' },
-  condition: { type: 'string', enum: ['book', 'lend', 'return', 'fail'] }  //book为预约，lend为借出，return为归还，fail为作废
+  condition: { type: 'string', enum: ['预约', '借出', '归还', '作废'] }
 })
 let MeetingBooks = mongolass.model('MeetingBook', {
   userId: { type: Mongolass.Types.ObjectId },
@@ -47,7 +47,7 @@ let MeetingBooks = mongolass.model('MeetingBook', {
   date: { type: 'string' },  //格式YYYY年MM月DD日
   time: { type: 'string' },  //如中午12:30-14:00，下午17:30-19:00
   isPNeed: { type: 'boolean' },  //是否需要投影仪
-  condition: { type: 'string', enum: ['book', 'return', 'fail'] }  //book为预约，return为归还，fail为作废
+  condition: { type: 'string', enum: ['预约', '归还', '作废'] }
 })
 
 module.exports = {

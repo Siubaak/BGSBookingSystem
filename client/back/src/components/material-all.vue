@@ -40,7 +40,7 @@
        <ul class="list-group">
         <li class="list-group-item" v-for="material of materials">
           <small><span class="glyphicon glyphicon-bookmark"></span></small>
-          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left < 0 ? 0 : material.left }}</label> {{ material.unit }}<br>
+          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left }}</label> {{ material.unit }}<br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

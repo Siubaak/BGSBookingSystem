@@ -7,6 +7,13 @@
           会议室预约所有记录
         </h4>
       </div>
+      <div class="panel-body">
+        <a href="../../api/admin/meeting/book/list/download" target="_blank"
+          class="btn btn-sm btn-primary btn-group btn-group-justified">
+          <small><span class="glyphicon glyphicon-download-alt"></span></small>
+          下载会议室预约所有记录
+        </a>
+      </div>
       <ul class="list-group">
         <li class="list-group-item" v-for="(meetingBook, index) in meetingBooks">
           <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ meetingBook.user }}
@@ -32,14 +39,11 @@
               </li>
             </ul>
           </div>
-          <span class="label label-condition label-default" v-show="meetingBook.condition === 'book'">
-            状态：预约
-          </span>
-          <span class="label label-condition label-info" v-show="meetingBook.condition === 'return'">
-            状态：归还
-          </span>
-          <span class="label label-condition label-danger" v-show="meetingBook.condition === 'fail'">
-            状态：作废
+          <span class="label label-condition"
+                :class="{ 'label-default': (meetingBook.condition === '预约'),
+                          'label-info': (meetingBook.condition === '归还'),
+                          'label-danger': (meetingBook.condition === '作废') }">
+            状态：{{ meetingBook.condition }}
           </span>
         </li>
         <li class="list-group-item" v-show="!meetingBooks.length">无会议室预约记录</li>

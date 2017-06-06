@@ -22,7 +22,7 @@
           </label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
-                    :disabled="materialBook.condition === 'lend' ? 'disabled' : null"
+                    :disabled="materialBook.condition === '借出' ? 'disabled' : null"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               借出
             </button>
@@ -31,7 +31,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-primary" type="button" @click="materialBookUpdateCondition(materialBook._id, 'lend')">确认</button>
+                    <button class="btn btn-sm btn-primary" type="button" @click="materialBookUpdateCondition(materialBook._id, '借出')">确认</button>
                   </span>
                 </div>
               </li>
@@ -39,7 +39,7 @@
           </div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-info dropdown-toggle"
-                    :disabled="materialBook.condition !== 'lend' ? 'disabled' : null"
+                    :disabled="materialBook.condition !== '借出' ? 'disabled' : null"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               归还
             </button>
@@ -48,7 +48,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-info" type="button" @click="materialBookUpdateCondition(materialBook._id, 'return')">确认</button>
+                    <button class="btn btn-sm btn-info" type="button" @click="materialBookUpdateCondition(materialBook._id, '归还')">确认</button>
                   </span>
                 </div>
               </li>
@@ -64,7 +64,7 @@
                 <div class="input-group">
                   <input v-model="ok" type="text" class="form-control input-sm" placeholder="输入bgs并确认">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdateCondition(materialBook._id, 'fail')">确认</button>
+                    <button class="btn btn-sm btn-danger" type="button" @click="materialBookUpdateCondition(materialBook._id, '作废')">确认</button>
                   </span>
                 </div>
               </li>
@@ -86,11 +86,10 @@
               </li>
             </ul>
           </div>
-          <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
-            状态：预约
-          </span>
-          <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
-            状态：借出
+          <span class="label label-condition"
+                :class="{ 'label-default': (materialBook.condition === '预约'),
+                          'label-primary': (materialBook.condition === '借出') }">
+            状态：{{ materialBook.condition }}
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">当前没有部门申请物资借用</li>

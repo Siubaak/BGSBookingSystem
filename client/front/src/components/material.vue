@@ -99,7 +99,7 @@ export default {
             takeDate: this.takeDate,
             returnDate: this.returnDate,
             remark: '',
-            condition: 'book'
+            condition: '预约'
           },
           materialBookItems: this.materialBookItems
         }).then((res) => {
@@ -248,7 +248,7 @@ export default {
                     userId: this.userId,
                     materialId: this.materials[result[1].value]._id,
                     book: 0,
-                    condition: 'book'
+                    condition: '预约'
                   })
                 }
               },

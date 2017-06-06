@@ -15,6 +15,7 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "iconv-lite": "^0.4.17",
     "jsonwebtoken": "^7.3.0",
     "mongolass": "^2.4.5",
     "node-schedule": "^1.2.1",

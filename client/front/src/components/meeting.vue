@@ -94,7 +94,7 @@ export default {
             date: this.date,
             time: this.time,
             isPNeed: this.isPNeed,
-            condition: 'book'
+            condition: '预约'
           }
         }).then((res) => {
           loading.hide()
@@ -204,7 +204,7 @@ export default {
           }).catch((err) => {
             loading.hide()
             console.error(err)
-            weui.alert('会议室空闲时间加载出错，请稍后再试')
+            weui.alert('会议室空闲时间段列表加载出错，请稍后再试')
           })
       }
     }

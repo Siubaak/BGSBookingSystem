@@ -69,9 +69,9 @@ export default {
   materialBookUpdateCondition (params, condition) {
     insertToken()
     switch (condition) {
-      case 'lend':
+      case '借出':
         return axios.post('/api/admin/material/book/update/lend', params)
-      case 'return':
+      case '归还':
         return axios.post('/api/admin/material/book/update/return', params)
       default:
         return axios.post('/api/admin/material/book/update/fail', params)

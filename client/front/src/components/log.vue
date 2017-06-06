@@ -71,7 +71,7 @@ export default {
               onConfirm: (result) => {
                 this.user.department = result[0].label
               },
-              id: 'material-picker'
+              id: 'user-picker'
             })
           } else {
             loading.hide()
@@ -80,7 +80,7 @@ export default {
         }).catch((err) => {
           loading.hide()
           console.error(err)
-          weui.alert('物资列表加载失败，请稍后再试')
+          weui.alert('部门列表加载失败，请稍后再试')
         })
     }
   }

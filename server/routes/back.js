@@ -6,6 +6,7 @@ let tokenCreate = require('../token-mw/token-create')
 let tokenCheck = require('../token-mw/token-check')
 let sha1 = require('sha1')
 let conf = require('../conf')
+let iconv = require('iconv-lite')
 
 // 后台登录路由，返回token
 router.post('/admin/login', async (req, res) => {
@@ -204,7 +205,7 @@ router.get('/admin/material/list', tokenCheck, async (req, res) => {
 router.post('/admin/material/book/update/lend', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
-    await api.updateMaterialBookCondition(materialBookId, 'lend')
+    await api.updateMaterialBookCondition(materialBookId, '借出')
     res.status(200).end()
   } catch (err) {
     console.error(err)
@@ -216,7 +217,7 @@ router.post('/admin/material/book/update/lend', tokenCheck, async (req, res) => 
 router.post('/admin/material/book/update/return', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
-    await api.updateMaterialBookCondition(materialBookId, 'return')
+    await api.updateMaterialBookCondition(materialBookId, '归还')
     res.status(200).end()
   } catch (err) {
     console.error(err)
@@ -229,8 +230,8 @@ router.post('/admin/material/book/update/fail', tokenCheck, async (req, res) => 
   let { materialBookId } = req.body
   try {
     let materialBook = await api.getMaterialBookById(materialBookId)
-    if (materialBook.condition !== 'lend') {
-      await api.updateMaterialBookCondition(materialBookId, 'fail')
+    if (materialBook.condition !== '借出') {
+      await api.updateMaterialBookCondition(materialBookId, '作废')
       res.status(200).end()
     } else {
       res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借出状态，无法作废' })
@@ -262,7 +263,7 @@ router.post('/admin/material/book/remove', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
     let materialBook = await api.getMaterialBookById(materialBookId)
-    if (materialBook.condition !== 'lend') {
+    if (materialBook.condition !== '借出') {
       await api.removeMaterialBook(materialBookId)
       res.status(200).end()
     } else {
@@ -296,11 +297,33 @@ router.get('/admin/material/book/list/all', tokenCheck, async (req, res) => {
   }
 })
 
+// 后台下载物资申请所有记录
+router.get('/admin/material/book/list/download', async (req, res) => {
+  try {
+    let content = '部门,预约人,联系方式,活动名称,预计领取时间,计划归还时间,借用物资,备注,状态\r\n'
+    let materialBooks = await api.getMaterialBookList()
+    for (let materialBook of materialBooks) {
+      content += `${materialBook.user},${materialBook.name},${materialBook.phone},${materialBook.activity},${materialBook.takeDate},${materialBook.returnDate},`
+      for (let materialBookItem of materialBook.book) {
+        content += `${materialBookItem.name}${materialBookItem.book}${materialBookItem.unit} `
+      }
+      content += `,${materialBook.remark},${materialBook.condition}\r\n`
+    }
+    content = iconv.encode(content, 'GBK')
+    res.setHeader('Content-Disposition', 'attachment; filename=material_book_list.csv')
+    res.setHeader('Content-Type', 'text/csv')
+    res.status(200).send(content)
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
 // 后台更新会议室预约状态，更改为作废状态
 router.post('/admin/meeting/book/update/fail', tokenCheck, async (req, res) => {
   let { meetingBookId } = req.body
   try {
-    await api.updateMeetingBookCondition(meetingBookId, 'fail')
+    await api.updateMeetingBookCondition(meetingBookId, '作废')
     res.status(200).end()
   } catch (err) {
     console.error(err)
@@ -336,6 +359,29 @@ router.get('/admin/meeting/book/list/all', tokenCheck, async (req, res) => {
   try {
     let meetingBookList = await api.getMeetingBookList()
     res.status(200).send({ meetingBookList })
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台下载会议室预约所有记录
+router.get('/admin/meeting/book/list/download', async (req, res) => {
+  try {
+    let content = '部门,预约人,联系方式,会议名称,借用日期,借用时间段,是否需要投影仪,状态\r\n'
+    let meetingBooks = await api.getMeetingBookList()
+    for (let meetingBook of meetingBooks) {
+      content += `${meetingBook.user},${meetingBook.name},${meetingBook.phone},${meetingBook.activity},${meetingBook.date},${meetingBook.time},`
+      if (meetingBook.isPNeed) {
+        content += `需要,${meetingBook.condition}\r\n`
+      } else {
+        content += `不需要,${meetingBook.condition}\r\n`
+      }
+    }
+    content = iconv.encode(content, 'GBK')
+    res.setHeader('Content-Disposition', 'attachment; filename=meeting_book_list.csv')
+    res.setHeader('Content-Type', 'text/csv')
+    res.status(200).send(content)
   } catch (err) {
     console.error(err)
     res.status(500).send({ code: 'internal:unknow_error', msg: err })

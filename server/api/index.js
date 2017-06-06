@@ -58,7 +58,7 @@ module.exports = {
   async getMaterialList(findAll) {
     let materialList = await Materials.find().sort({ type: 1 }).exec()
     for (let material of materialList) {
-      let materialBookItems = await MaterialBookItems.find({ materialId: material._id, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
+      let materialBookItems = await MaterialBookItems.find({ materialId: material._id, $or: [{ condition: '预约' }, { condition: '借出' }] }).exec()
       let book = 0
       switch (materialBookItems.length) {
         case 0:
@@ -80,7 +80,7 @@ module.exports = {
   },
 // 物资申请相关API函数
   async createMaterialBook(materialBook, materialBookItems) {
-    let materialBooks = await MaterialBooks.find({ userId: materialBook.userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).exec()
+    let materialBooks = await MaterialBooks.find({ userId: materialBook.userId, $or: [{ condition: '预约' }, { condition: '借出' }] }).exec()
     if (materialBooks.length < conf.maxMaterialBook) {
       let materialBookId = (await MaterialBooks.create(materialBook).exec()).insertedIds[0]
       for (let materialBookItem of materialBookItems) {
@@ -116,9 +116,9 @@ module.exports = {
         case undefined:
           return MaterialBooks.find().sort({ _id: -1 }).exec()
         case 'back':
-          return MaterialBooks.find({ $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id: -1 }).exec()
+          return MaterialBooks.find({ $or: [{ condition: '预约' }, { condition: '借出' }] }).sort({ _id: -1 }).exec()
         default:
-          return MaterialBooks.find({ userId: userId, $or: [{ condition: 'book' }, { condition: 'lend' }] }).sort({ _id: -1 }).exec()
+          return MaterialBooks.find({ userId: userId, $or: [{ condition: '预约' }, { condition: '借出' }] }).sort({ _id: -1 }).exec()
       }
     })()
     for (let materialBook of materialBooks) {
@@ -137,11 +137,11 @@ module.exports = {
 // 会议室预约相关API函数
   createMeetingBook(meetingBook) {
     return (async () => {
-      let isBook = await MeetingBooks.findOne({ date: meetingBook.date, time: meetingBook.time, condition: 'book' }).exec()
+      let isBook = await MeetingBooks.findOne({ date: meetingBook.date, time: meetingBook.time, condition: '预约' }).exec()
       if (isBook) {
         return Promise.resolve('booked')
       } else {
-        let meetingBooks = await MeetingBooks.find({ userId: meetingBook.userId, condition: 'book' }).exec()
+        let meetingBooks = await MeetingBooks.find({ userId: meetingBook.userId, condition: '预约' }).exec()
         if (meetingBooks.length < conf.maxMeetingBook) {
           await MeetingBooks.create(meetingBook).exec()
           return Promise.resolve('success')
@@ -155,7 +155,7 @@ module.exports = {
     return MeetingBooks.update({ _id: meetingBookId }, { $set: { condition: condition } }).exec()
   },
   updateMeetingScheduleReturn(today) {
-    return MeetingBooks.update({ date: today, condition: 'book' }, { $set: { condition: 'return' } }, { multi: true }).exec()
+    return MeetingBooks.update({ date: today, condition: '预约' }, { $set: { condition: '归还' } }, { multi: true }).exec()
   },
   removeMeetingBook(meetingBookId) {
     return MeetingBooks.remove({ _id: meetingBookId }).exec()
@@ -166,9 +166,9 @@ module.exports = {
         case undefined:
           return MeetingBooks.find().sort({ _id: -1 }).exec()
         case 'back':
-          return MeetingBooks.find({ condition: 'book' }).sort({ _id: -1 }).exec()
+          return MeetingBooks.find({ condition: '预约' }).sort({ _id: -1 }).exec()
         default:
-          return MeetingBooks.find({ userId: userId, condition: 'book' }).sort({ _id: -1 }).exec()
+          return MeetingBooks.find({ userId: userId, condition: '预约' }).sort({ _id: -1 }).exec()
       }
     })()
     for (let meetingBook of meetingBooks) {
@@ -178,7 +178,7 @@ module.exports = {
     return Promise.resolve(meetingBooks)
   },
   async getMeetingOccupiedTime() {
-    let meetingBooks = await MeetingBooks.find({ condition: 'book' }).sort({ _id: -1 }).exec()
+    let meetingBooks = await MeetingBooks.find({ condition: '预约' }).sort({ _id: -1 }).exec()
     let occupiedTime = {}
     for (let meetingBook of meetingBooks) {
       occupiedTime[`${meetingBook.date}${meetingBook.time}`] = true

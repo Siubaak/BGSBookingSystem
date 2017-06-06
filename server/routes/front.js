@@ -166,8 +166,8 @@ router.post('/material/book/update/fail', tokenCheck, async (req, res) => {
   let { materialBookId } = req.body
   try {
     let materialBook = await api.getMaterialBookById(materialBookId)
-    if (materialBook.condition !== 'lend') {
-      await api.updateMaterialBookCondition(materialBookId, 'fail')
+    if (materialBook.condition !== '借出') {
+      await api.updateMaterialBookCondition(materialBookId, '作废')
       res.status(200).end()
     } else {
       res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借用状态，无法撤销' })
@@ -216,7 +216,7 @@ router.post('/meeting/book/create', tokenCheck, async (req, res) => {
 router.post('/meeting/book/update/fail', tokenCheck, async (req, res) => {
   let { meetingBookId } = req.body
   try {
-    await api.updateMeetingBookCondition(meetingBookId, 'fail')
+    await api.updateMeetingBookCondition(meetingBookId, '作废')
     res.status(200).end()
   } catch (err) {
     console.error(err)

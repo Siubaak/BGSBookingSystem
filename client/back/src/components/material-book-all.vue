@@ -7,6 +7,13 @@
           物资申请所有记录
         </h4>
       </div>
+      <div class="panel-body">
+        <a href="../../api/admin/material/book/list/download" target="_blank"
+          class="btn btn-sm btn-primary btn-group btn-group-justified">
+          <small><span class="glyphicon glyphicon-download-alt"></span></small>
+          下载物资申请所有记录
+        </a>
+      </div>
       <ul class="list-group">
         <li class="list-group-item" v-for="(materialBook, index) of materialBooks">
           <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBook.user }}
@@ -36,17 +43,12 @@
               </li>
             </ul>
           </div>
-          <span class="label label-condition label-default" v-show="materialBook.condition === 'book'">
-            状态：预约
-          </span>
-          <span class="label label-condition label-primary" v-show="materialBook.condition === 'lend'">
-            状态：借出
-          </span>
-          <span class="label label-condition label-info" v-show="materialBook.condition === 'return'">
-            状态：归还
-          </span>
-          <span class="label label-condition label-danger" v-show="materialBook.condition === 'fail'">
-            状态：作废
+          <span class="label label-condition"
+                :class="{ 'label-default': (materialBook.condition === '预约'),
+                          'label-primary': (materialBook.condition === '借出'),
+                          'label-info': (materialBook.condition === '归还'),
+                          'label-danger': (materialBook.condition === '作废') }">
+            状态：{{ materialBook.condition }}
           </span>
         </li>
         <li class="list-group-item" v-show="!materialBooks.length">无物资申请记录</li>
@@ -70,7 +72,6 @@ export default {
         api.materialBookRemove({ materialBookId })
           .then((res) => {
             if (res.status === 200) {
-              this.materialListGet()
               this.materialBookListGetAll()
             } else {
               alert(res.data.msg)
