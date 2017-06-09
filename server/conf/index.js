@@ -18,5 +18,11 @@ module.exports = {
   // 每天处理会议室归还时间，六个数字格式如下
   // 秒（0-59，可选） 分（0-59） 时（0-23） 日期（1-31） 月份（1-12） 星期（0-7，0或7均为星期天）
   // 其中*为任意或者所有
-  scheduleTime: '0 0 23 * * *'
+  scheduleTime: '0 0 23 * * *',
+  // 邮件通知设置，smtp地址、端口（一般为465）、用户名、第三方登录密码、通知邮箱
+  mailHost: 'smtp.163.com',
+  mailPort: 465,
+  mailUser: 'test@163.com',
+  mailPass: 'test',
+  mailTo: 'test@163.com'
 }

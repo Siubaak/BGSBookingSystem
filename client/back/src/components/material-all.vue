@@ -74,6 +74,7 @@
             </ul>
           </div>
         </li>
+        <li class="list-group-item" v-show="!materials.length">无物资记录</li>
       </ul>
     </div>
   </div>

@@ -5,6 +5,7 @@ let api = require('../api')
 let tokenCreate = require('../token-mw/token-create-front')
 let tokenCheck = require('../token-mw/token-check-front')
 let sha1 = require('sha1')
+let note = require('../email')
 
 // 前台登录，返回token
 router.post('/login', async (req, res) => {
@@ -152,6 +153,18 @@ router.post('/material/book/create', tokenCheck, async (req, res) => {
     let result = await api.createMaterialBook(materialBook, materialBookItems)
     if (result === 'success') {
       res.status(200).end()
+      let user = await api.getUserById(materialBook.userId)
+      note(`${user.department}进行【物资申请】`,
+        `<p>
+          会议：${materialBook.activity}<br>
+          预约人：${materialBook.name}（${materialBook.phone}）<br>
+          领取时间：${materialBook.takeDate}<br>
+          归还时间：${materialBook.returnDate}<br>
+        </p>
+        <p>
+          该邮件仅用于提醒，详情请登录后台（yhbgs.net/admin）查询
+        </p>`
+      )
     } else {
       res.status(299).send({ code: 'data:full_material_book', msg: '该用户可进行物资申请次数已满' })
     }
@@ -201,6 +214,18 @@ router.post('/meeting/book/create', tokenCheck, async (req, res) => {
     let result = await api.createMeetingBook(meetingBook)
     if (result === 'success') {
       res.status(200).end()
+      let user = await api.getUserById(meetingBook.userId)
+      note(`${user.department}进行【会议室预约】`,
+        `<p>
+          会议：${meetingBook.activity}<br>
+          预约人：${meetingBook.name}（${meetingBook.phone}）<br>
+          预约日期：${meetingBook.date}<br>
+          预约时间：${meetingBook.time}<br>
+        </p>
+        <p>
+          该邮件仅用于提醒，详情请登录后台（yhbgs.net/admin）查询
+        </p>`
+      )
     } else if (result === 'full') {
       res.status(299).send({ code: 'data:full_meeting_book', msg: '该用户可进行会议室预约次数已满' })
     } else {
