@@ -9,9 +9,11 @@ let conf = require('./conf')
 schedule()
 
 app.use(bodyParser.json())
-app.use((req, res, next) => {
-  console.log(`Processing ${req.method} ${req.originalUrl} ...`)
-  next()
+app.use(async (req, res, next) => {
+  let before = new Date()
+  await next()
+  let duration = new Date() - before
+  console.log(`Processing ${req.method} ${req.originalUrl} ... ${duration}ms`)
 })
 
 routes(app)

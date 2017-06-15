@@ -1,0 +1,4 @@
+node_modules/
+assets/back/dist/
+assets/front/dist/
+*.log
