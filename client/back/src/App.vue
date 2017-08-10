@@ -11,4 +11,8 @@ body {
 textarea {
   resize: none;
 }
+.highlight {
+  font-weight: 700;
+  color: #126BCD;
+}
 </style>

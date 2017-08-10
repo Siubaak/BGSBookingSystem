@@ -3,11 +3,12 @@ let Mongolass = require('mongolass')
 let mongolass = new Mongolass(`mongodb://${conf.dbIP}:${conf.dbPort}/${conf.dbName}`)
 let Admins = mongolass.model('Admin', {
   account: { type: 'string' },
-  password: { type: 'string' },
+  password: { type: 'string' }
 })
 let Users = mongolass.model('User', {
   department: { type: 'string'},
   password: { type: 'string' },
+  wallet: { type: 'number' },
   isAuth: { type: 'boolean' },
   isMain: { type: 'boolean' },
   reName: { type: 'string' },  //部长姓名
@@ -20,13 +21,15 @@ let Materials = mongolass.model('Material', {
   type: { type: 'string' },
   name: { type: 'string' },
   unit: { type: 'string' },
-  quantity: { type: 'number' }
+  quantity: { type: 'number' },
+  price: { type: 'number' }
 })
 let MaterialBooks = mongolass.model('MaterialBook', {
   userId: { type: Mongolass.Types.ObjectId },
   name: { type: 'string' },
   phone: { type: 'string' },
   activity: { type: 'string' },
+  sum: { type: 'number' },
   takeDate: { type: 'string' },  //格式YYYY-MM-DD
   returnDate: { type: 'string' },  //格式YYYY-MM-DD
   remark: { type: 'string' },

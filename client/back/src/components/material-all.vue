@@ -31,6 +31,10 @@
               <label for="unit">物资单位（如：张、个、瓶）</label>
               <input type="text" class="form-control" id="unit" placeholder="请输入物资单位" required v-model="unit"></input>
             </div>
+            <div class="form-group">
+              <label for="price">物资价格（金币数）</label>
+              <input type="text" class="form-control" id="price" placeholder="请输入物资价格" required v-model.number="price"></input>
+            </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
               <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存
             </button>
@@ -40,7 +44,7 @@
        <ul class="list-group">
         <li class="list-group-item" v-for="material of materials">
           <small><span class="glyphicon glyphicon-bookmark"></span></small>
-          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left }}</label> {{ material.unit }}<br>
+          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left }}</label> {{ material.unit }}，单价为 <label>{{ material.price }}</label>G<br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -52,6 +56,22 @@
                   <input v-model.number="material.quantity" type="text" class="form-control input-sm">
                   <span class="input-group-btn">
                     <button class="btn btn-sm btn-primary" type="button" @click="materialUpdateQuantity(material)">确认</button>
+                  </span>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-info dropdown-toggle" @click="materialListGet"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              修改价格
+            </button>
+            <ul class="dropdown-menu">
+              <li class="edit-button">
+                <div class="input-group">
+                  <input v-model.number="material.price" type="text" class="form-control input-sm">
+                  <span class="input-group-btn">
+                    <button class="btn btn-sm btn-primary" type="button" @click="materialUpdatePrice(material)">确认</button>
                   </span>
                 </div>
               </li>
@@ -90,7 +110,8 @@ export default {
       name: '',
       unit: '',
       quantity: 1,
-      materials: []
+      materials: [],
+      price: 1
     }
   },
   methods: {
@@ -101,7 +122,8 @@ export default {
             type: this.type,
             name: this.name,
             unit: this.unit,
-            quantity: this.quantity
+            quantity: this.quantity,
+            price: this.price
           }
         }).then((res) => {
           if (res.status === 200) {
@@ -129,6 +151,21 @@ export default {
       }).catch((err) => {
         console.error(err)
         alert('物资数量修改出错，请稍后再试')
+      })
+    },
+    materialUpdatePrice (material) {
+      api.materialUpdatePrice({
+        materialId: material._id,
+        price: material.price
+      }).then((res) => {
+        if (res.status === 200) {
+          this.materialListGet()
+        } else {
+          alert(res.data.msg)
+        }
+      }).catch((err) => {
+        console.error(err)
+        alert('物资价格修改出错，请稍后再试')
       })
     },
     materialRemove (materialId) {

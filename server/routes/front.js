@@ -150,23 +150,29 @@ router.get('/material/list', tokenCheck, async (req, res) => {
 router.post('/material/book/create', tokenCheck, async (req, res) => {
   let { materialBook, materialBookItems } = req.body
   try {
-    let result = await api.createMaterialBook(materialBook, materialBookItems)
-    if (result === 'success') {
-      res.status(200).end()
-      let user = await api.getUserById(materialBook.userId)
-      note(`${user.department}进行【物资申请】`,
-        `<p>
-          会议：${materialBook.activity}<br>
-          预约人：${materialBook.name}（${materialBook.phone}）<br>
-          领取时间：${materialBook.takeDate}<br>
-          归还时间：${materialBook.returnDate}<br>
-        </p>
-        <p>
-          该邮件仅用于提醒，详情请登录后台（yhbgs.net/admin）查询
-        </p>`
-      )
+    let user = await api.getUserById(materialBook.userId)
+    user.wallet -= materialBook.sum
+    if (user.wallet >= 0) {
+      let result = await api.createMaterialBook(materialBook, materialBookItems)
+      if (result === 'success') {
+        await api.updateUser(user)
+        res.status(200).end()
+        note(`${user.department}进行【物资申请】`,
+          `<p>
+            会议：${materialBook.activity}<br>
+            预约人：${materialBook.name}（${materialBook.phone}）<br>
+            领取时间：${materialBook.takeDate}<br>
+            归还时间：${materialBook.returnDate}<br>
+          </p>
+          <p>
+            该邮件仅用于提醒，详情请登录后台（yhbgs.net/admin）查询
+          </p>`
+        )
+      } else {
+        res.status(299).send({ code: 'data:full_material_book', msg: '该用户可进行物资申请次数已满' })
+      }
     } else {
-      res.status(299).send({ code: 'data:full_material_book', msg: '该用户可进行物资申请次数已满' })
+      res.status(299).send({ code: 'data:insufficient_balance', msg: '该用户钱包余额不足' })
     }
   } catch (err) {
     console.error(err)
@@ -180,7 +186,10 @@ router.post('/material/book/update/fail', tokenCheck, async (req, res) => {
   try {
     let materialBook = await api.getMaterialBookById(materialBookId)
     if (materialBook.condition !== '借出') {
+      let user = await api.getUserById(materialBook.userId)
+      user.wallet += materialBook.sum
       await api.updateMaterialBookCondition(materialBookId, '作废')
+      await api.updateUser(user)
       res.status(200).end()
     } else {
       res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借用状态，无法撤销' })

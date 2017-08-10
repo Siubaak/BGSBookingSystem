@@ -55,10 +55,11 @@ router.post('/admin/update/password', async (req, res) => {
 
 // 后台创建部门用户
 router.post('/admin/user/create', tokenCheck, async (req, res) => {
-  let { department, isMain } = req.body
+  let { department, isMain, wallet } = req.body
   let user = {
     department: department,
     password: sha1(conf.userDefaultPassword),
+    wallet: wallet,
     isAuth: false,
     isMain: isMain,
     reName: '',
@@ -79,6 +80,18 @@ router.post('/admin/user/create', tokenCheck, async (req, res) => {
 router.post('/admin/user/update/auth', tokenCheck, async (req, res) => {
   let { user } = req.body
   user.isAuth = !user.isAuth
+  try {
+    await api.updateUser(user)
+    res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台更新部门用户钱包
+router.post('/admin/user/update/wallet', tokenCheck, async (req, res) => {
+  let { user } = req.body
   try {
     await api.updateUser(user)
     res.status(200).end()
@@ -162,12 +175,28 @@ router.post('/admin/material/create', tokenCheck, async (req, res) => {
   }
 })
 
-// 后台更新物资
+// 后台更新物资数量
 router.post('/admin/material/update/quantity', tokenCheck, async (req, res) => {
   let { materialId, quantity } = req.body
   let material = {
     _id: materialId,
     quantity: quantity
+  }
+  try {
+    await api.updateMaterial(material)
+    res.status(200).end()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send({ code: 'internal:unknow_error', msg: err })
+  }
+})
+
+// 后台更新物资价格
+router.post('/admin/material/update/price', tokenCheck, async (req, res) => {
+  let { materialId, price } = req.body
+  let material = {
+    _id: materialId,
+    price: price
   }
   try {
     await api.updateMaterial(material)
@@ -231,7 +260,10 @@ router.post('/admin/material/book/update/fail', tokenCheck, async (req, res) => 
   try {
     let materialBook = await api.getMaterialBookById(materialBookId)
     if (materialBook.condition !== '借出') {
+      let user = await api.getUserById(materialBook.userId)
+      user.wallet += materialBook.sum
       await api.updateMaterialBookCondition(materialBookId, '作废')
+      await api.updateUser(user)
       res.status(200).end()
     } else {
       res.status(299).send({ code: 'data:lend_material', msg: '该物资申请处于借出状态，无法作废' })

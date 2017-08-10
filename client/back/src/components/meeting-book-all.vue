@@ -16,12 +16,12 @@
       </div>
       <ul class="list-group">
         <li class="list-group-item" v-for="(meetingBook, index) in meetingBooks">
-          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ meetingBook.user }}
+          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ meetingBook.user }}<br>
+          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> <span class="highlight">{{ meetingBook.activity }}</span><br>
           <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ meetingBook.name }}
-          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ meetingBook.phone }}<br>
-          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ meetingBook.activity }}<br>
+          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> <a :href="'tel:' + meetingBook.phone">{{ meetingBook.phone }}</a><br>
           <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ meetingBook.date }}<br>
-          <small><span class="glyphicon glyphicon-time" aria-hidden="true"></span></small> {{ meetingBook.time }} 使用 <br>
+          <small><span class="glyphicon glyphicon-time" aria-hidden="true"></span></small> <span class="highlight">{{ meetingBook.time }} 使用 </span><br>
           <div class="bottom-span"><small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small> {{ meetingBook.isPNeed ? '' : '不'}}需要使用投影仪</div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"

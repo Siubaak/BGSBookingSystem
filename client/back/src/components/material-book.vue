@@ -9,12 +9,13 @@
       </div>
       <ul class="list-group">
         <li class="list-group-item" v-for="(materialBook, index) in materialBooks">
-          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBook.user }}
+          <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ materialBook.user }}<br>
+          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> <span class="highlight">{{ materialBook.activity }}</span><br>
           <small><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ materialBook.name }}
-          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ materialBook.phone }}<br>
-          <small><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></small> {{ materialBook.activity }}<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 预约{{ materialBook.takeDate }}领取<br>
-          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 计划{{ materialBook.returnDate }}归还<br>
+          <small><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> <a :href="'tel:' + materialBook.phone">{{ materialBook.phone }}</a><br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> 领取时间：{{ materialBook.takeDate }}<br>
+          <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> <span class="highlight">计划归还：{{ materialBook.returnDate }}</span><br>
+          <small><span class="glyphicon glyphicon-yen" aria-hidden="true"></span></small> 共 ¥{{ materialBook.sum || 0 }}<br>
           <div v-show="materialBook.remark"><small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> {{ materialBook.remark }}</div>
           <small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small>
           <label v-for="(book, index) of materialBook.book">

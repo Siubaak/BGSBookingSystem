@@ -58,6 +58,10 @@
               <label for="department">部门名称</label>
               <input type="text" class="form-control" id="department" placeholder="请输入部门名称" required v-model="department"></input>
             </div>
+            <div class="form-group">
+              <label for="wallet">钱包</label>
+              <input type="text" class="form-control" id="wallet" placeholder="请输入金币数" required v-model.number="wallet"></input>
+            </div>
             <button type="submit" class="btn btn-sm btn-primary btn-group btn-group-justified">
               <small><span class="glyphicon glyphicon-floppy-disk"></span></small> 保存添加
             </button>
@@ -70,6 +74,23 @@
             <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small> {{ userItem.department }}
             <small v-show="userItem.reName"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></small> {{ userItem.reName }}
             <small v-show="userItem.rePhone"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ userItem.rePhone }}
+            <small><span class="glyphicon glyphicon-yen" aria-hidden="true"></span></small> {{ userItem.wallet || 0 }}
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-info dropdown-toggle" @click="userListGet"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              修改钱包
+            </button>
+            <ul class="dropdown-menu">
+              <li class="edit-button">
+                <div class="input-group">
+                  <input v-model.number="userItem.wallet" type="text" class="form-control input-sm">
+                  <span class="input-group-btn">
+                    <button class="btn btn-sm btn-primary" type="button" @click="userUpdateWallet(userItem)">确认</button>
+                  </span>
+                </div>
+              </li>
+            </ul>
           </div>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle"
@@ -160,6 +181,7 @@ export default {
       newPassword: '',
       newPasswordForCheck: '',
       department: '',
+      wallet: 0,
       isMain: '',
       users: []
     }
@@ -193,7 +215,7 @@ export default {
     userCreate () {
       if (this.department && this.isMain) {
         let isMainSend = (this.isMain !== 3)
-        api.userCreate({ department: this.department, isMain: isMainSend })
+        api.userCreate({ department: this.department, isMain: isMainSend, wallet: this.wallet })
           .then((res) => {
             if (res.status === 200) {
               this.department = ''
@@ -244,6 +266,19 @@ export default {
       } else {
         alert('请输入bgs并点击确认按钮以授权')
       }
+    },
+    userUpdateWallet (user) {
+      api.userUpdateWallet({ user })
+        .then((res) => {
+          if (res.status === 200) {
+            this.userListGet()
+          } else {
+            alert(res.data.msg)
+          }
+        }).catch((err) => {
+          console.error(err)
+          alert('钱包更新出错，请稍后再试')
+        })
     },
     userReset (user) {
       if (this.ok === 'bgs') {

@@ -24,6 +24,10 @@ export default {
     insertToken()
     return axios.post('/api/admin/user/update/auth', params)
   },
+  userUpdateWallet (params) {
+    insertToken()
+    return axios.post('/api/admin/user/update/wallet', params)
+  },
   userReset (params) {
     insertToken()
     return axios.post('/api/admin/user/update/reset', params)
@@ -53,6 +57,10 @@ export default {
   materialUpdateQuantity (params) {
     insertToken()
     return axios.post('/api/admin/material/update/quantity', params)
+  },
+  materialUpdatePrice (params) {
+    insertToken()
+    return axios.post('/api/admin/material/update/price', params)
   },
   materialRemove (params) {
     insertToken()
