@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default" v-if="isGlobal">
       <div class="panel-heading">
         <h4 class="panel-title">
           <small><span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></small>
@@ -76,6 +76,12 @@
             <small v-show="userItem.rePhone"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></small> {{ userItem.rePhone }}
             <small><span class="glyphicon glyphicon-yen" aria-hidden="true"></span></small> {{ userItem.wallet || 0 }}
           </div>
+          <span class="label label-condition bottom-span"
+            :class="{ 'label-primary': userItem.isAuth,
+                      'label-info': !userItem.isAuth }">
+            状态：{{ userItem.isAuth ? '授权' : '未授权' }}
+          </span>
+          <br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-info dropdown-toggle" @click="userListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -86,7 +92,7 @@
                 <div class="input-group">
                   <input v-model.number="userItem.wallet" type="text" class="form-control input-sm">
                   <span class="input-group-btn">
-                    <button class="btn btn-sm btn-primary" type="button" @click="userUpdateWallet(userItem)">确认</button>
+                    <button class="btn btn-sm btn-info" type="button" @click="userUpdateWallet(userItem)">确认</button>
                   </span>
                 </div>
               </li>
@@ -158,11 +164,6 @@
               </li>
             </ul>
           </div>
-          <span class="label label-condition"
-            :class="{ 'label-primary': userItem.isAuth,
-                      'label-info': !userItem.isAuth }">
-            状态：{{ userItem.isAuth ? '授权' : '未授权' }}
-          </span>
         </li>
         <li class="list-group-item" v-show="!users.length">没有部门账号</li>
       </ul>
@@ -177,6 +178,7 @@ export default {
     return {
       ok: '',
       adminId: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).id,
+      isGlobal: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).isGlobal,
       passwordForCheck: '',
       newPassword: '',
       newPasswordForCheck: '',
@@ -324,6 +326,7 @@ export default {
 }
 .label-condition {
   padding: 8px;
+  display: inline-block;
 }
 .bottom-span {
   margin-bottom: 5px;

@@ -41,10 +41,10 @@
           </form>
         </div>
       </div>
-       <ul class="list-group">
+      <ul class="list-group">
         <li class="list-group-item" v-for="material of materials">
           <small><span class="glyphicon glyphicon-bookmark"></span></small>
-          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left }}</label> {{ material.unit }}，单价为 <label>{{ material.price }}</label>G<br>
+          <label>{{ material.type }}：{{ material.name }}</label> 共 <label>{{ material.quantity }}</label> {{ material.unit }}，剩 <label>{{ material.left }}</label> {{ material.unit }}，单价为 <label>¥{{ material.price }}</label><br>
           <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" @click="materialListGet"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -128,7 +128,6 @@ export default {
         }).then((res) => {
           if (res.status === 200) {
             this.materialListGet()
-            this.materialBookListGetAll()
           } else {
             alert(res.data.msg)
           }
@@ -174,7 +173,6 @@ export default {
           .then((res) => {
             if (res.status === 200) {
               this.materialListGet()
-              this.materialBookListGetAll()
             } else {
               alert(res.data.msg)
             }

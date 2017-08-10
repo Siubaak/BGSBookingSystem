@@ -34,7 +34,7 @@
                     <small><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></small> 通知公告编辑
                   </router-link>
                 </li>
-                <li>
+                <li v-if="isGlobal">
                   <router-link to="/admin/setting/material" @click.native="item3Click">
                     <small><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></small> 物资管理
                   </router-link>
@@ -70,6 +70,7 @@
 export default {
   data () {
     return {
+      isGlobal: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).isGlobal,
       isItem1Selected: true,
       isItem2Selected: false,
       isItem3Selected: false

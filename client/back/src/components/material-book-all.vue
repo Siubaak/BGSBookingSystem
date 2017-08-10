@@ -28,7 +28,7 @@
           <label v-for="(book, index) of materialBook.book">
             ({{ index + 1 }})&nbsp{{ book.name }}{{ book.book }}{{ book.unit }}&nbsp&nbsp
           </label><br>
-          <div class="btn-group">
+          <div class="btn-group" v-if="isGlobal">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               删除
@@ -64,6 +64,7 @@ export default {
   data () {
     return {
       ok: '',
+      isGlobal: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).isGlobal,
       materialBooks: []
     }
   },

@@ -23,7 +23,7 @@
           <small><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span></small> {{ meetingBook.date }}<br>
           <small><span class="glyphicon glyphicon-time" aria-hidden="true"></span></small> <span class="highlight">{{ meetingBook.time }} 使用 </span><br>
           <div class="bottom-span"><small><span class="glyphicon glyphicon-book" aria-hidden="true"></span></small> {{ meetingBook.isPNeed ? '' : '不'}}需要使用投影仪</div>
-          <div class="btn-group">
+          <div class="btn-group" v-if="isGlobal">
             <button type="button" class="btn btn-sm btn-danger dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               删除
@@ -58,6 +58,7 @@ export default {
   data () {
     return {
       ok: '',
+      isGlobal: JSON.parse(window.atob(this.$store.state.token.split('.')[1])).isGlobal,
       meetingBooks: []
     }
   },

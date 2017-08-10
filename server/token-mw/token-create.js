@@ -7,6 +7,7 @@ module.exports = (admin) => {
   return jwt.sign(
     {
       id: admin._id,
+      isGlobal: admin.isGlobal,
       exp: parseInt(expiry.getTime()/1000)
     },
     conf.jwtSecret

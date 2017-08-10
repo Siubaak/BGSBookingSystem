@@ -3,7 +3,8 @@ let Mongolass = require('mongolass')
 let mongolass = new Mongolass(`mongodb://${conf.dbIP}:${conf.dbPort}/${conf.dbName}`)
 let Admins = mongolass.model('Admin', {
   account: { type: 'string' },
-  password: { type: 'string' }
+  password: { type: 'string' },
+  isGlobal: { type: 'boolean' }
 })
 let Users = mongolass.model('User', {
   department: { type: 'string'},

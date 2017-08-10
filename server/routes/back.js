@@ -105,6 +105,7 @@ router.post('/admin/user/update/wallet', tokenCheck, async (req, res) => {
 router.post('/admin/user/update/reset', tokenCheck, async (req, res) => {
   let { user } = req.body
   user.password = sha1(conf.userDefaultPassword)
+  user.wallet = 0
   user.isAuth = false
   user.reName = ''
   user.rePhone = ''
