@@ -67,7 +67,7 @@
         </div>
       </div>
     </div>
-    <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式、活动名称、领取时间、归还时间和物资借用列表，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的物资借用，并在领取后五天（包括领取当天）内归还，若某类物资没有出现在添加列表中，则表明该物资已全部被预约或借用。物资领取时间及归还时间均为办公室值班时间，即每周一、三、五下午17:30-18:00。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
+    <div class="weui-cells__tips">说明：请准确填写预约人姓名、联系方式、活动名称、领取时间、归还时间和物资借用列表，否则研会办公室将拒绝申请。只允许预约往后五天内（包括今天）的物资借用，并在领取后五天（包括领取当天）内归还，若某类物资没有出现在添加列表中，则表明该物资已全部被预约或借用。物资领取时间及归还时间均为办公室值班时间，即每周日、三、五下午18:00-18:30。对于特殊情况，请联系办公室物资管理人员进行协商。</div>
     <p class="weui-btn-area">
       <a @click="materialBookCreate" class="weui-btn weui-btn_primary">提交申请</a>
     </p>
@@ -142,9 +142,9 @@ export default {
       const day = ['日', '一', '二', '三', '四', '五', '六']
       let end = new Date()
       let dateList = []
-      for (let i = 0; i !== 5; ++i) {
+      for (let i = 0; i !== 7; ++i) {
         end.setTime(now.getTime() + 86400000 * i)
-        if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
+        if (end.getDay() === 0 || end.getDay() === 3 || end.getDay() === 5) {
           dateList.push({
             label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日（周${day[end.getDay()]}）`,
             value: i
@@ -169,9 +169,9 @@ export default {
         startDate.setFullYear(parseInt(this.takeDate.slice(0, yearIndex)), parseInt(this.takeDate.slice(yearIndex + 1, monthIndex) - 1), parseInt(this.takeDate.slice(monthIndex + 1, dateIndex)))
         let end = new Date()
         let dateList = []
-        for (let i = 0; i !== 5; ++i) {
+        for (let i = 0; i !== 7; ++i) {
           end.setTime(startDate.getTime() + 86400000 * i)
-          if (end.getDay() === 1 || end.getDay() === 3 || end.getDay() === 5) {
+          if (end.getDay() === 0 || end.getDay() === 3 || end.getDay() === 5) {
             dateList.push({
               label: `${end.getFullYear()}年${end.getMonth() + 1}月${end.getDate()}日（周${day[end.getDay()]}）`,
               value: i
