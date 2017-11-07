@@ -146,41 +146,29 @@ export default {
             if (res.status === 200) {
               this.occupiedTime = res.data.occupiedTime
               let options = []
-              if (!this.occupiedTime[`${this.date}上午 8:00-10:00`]) {
-                options.push({
-                  label: '上午 8:00-10:00',
-                  value: 0
-                })
-              }
-              if (!this.occupiedTime[`${this.date}上午 10:00-12:00`]) {
-                options.push({
-                  label: '上午 10:00-12:00',
-                  value: 1
-                })
-              }
-              if (!this.occupiedTime[`${this.date}中午 13:00-15:00`]) {
-                options.push({
-                  label: '中午 13:00-15:00',
-                  value: 2
-                })
-              }
-              if (!this.occupiedTime[`${this.date}下午 15:00-17:00`]) {
-                options.push({
-                  label: '下午 15:00-17:00',
-                  value: 3
-                })
-              }
-              if (!this.occupiedTime[`${this.date}晚上 18:00-20:00`]) {
-                options.push({
-                  label: '晚上 18:00-20:00',
-                  value: 4
-                })
-              }
-              if (!this.occupiedTime[`${this.date}晚上 20:00-22:00`]) {
-                options.push({
-                  label: '晚上 20:00-22:00',
-                  value: 5
-                })
+              const times = [
+                '上午 8:00-9:00',
+                '上午 9:00-10:00',
+                '上午 10:00-11:00',
+                '上午 11:00-12:00',
+                '中午 12:00-13:00',
+                '中午 13:00-14:00',
+                '下午 14:00-15:00',
+                '下午 15:00-16:00',
+                '下午 16:00-17:00',
+                '下午 17:00-18:00',
+                '晚上 18:00-19:00',
+                '晚上 19:00-20:00',
+                '晚上 20:00-21:00',
+                '晚上 21:00-22:00'
+              ]
+              for (let index in times) {
+                if (!this.occupiedTime[`${this.date}${times[index]}`]) {
+                  options.push({
+                    label: times[index],
+                    value: index
+                  })
+                }
               }
               if (options.length === 0) {
                 options.push({
